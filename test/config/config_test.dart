@@ -1,6 +1,6 @@
-import 'package:dartio/src/config/config_model.dart';
-import 'package:dartio/src/config/config_repository.dart';
-import 'package:dartio/src/config/database.dart';
+import 'package:dartion/src/config/config_model.dart';
+import 'package:dartion/src/config/config_repository.dart';
+import 'package:dartion/src/config/database.dart';
 import 'package:test/test.dart';
 
 void main() {

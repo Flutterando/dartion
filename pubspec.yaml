@@ -1,7 +1,7 @@
-name: dartio
+name: dartion
 description: Json Server RESTful
 version: 0.0.1
-homepage: https://github.com/Flutterando/dartio
+homepage: https://github.com/Flutterando/dartion
 
 environment:
   sdk: '>=2.7.0 <3.0.0'
