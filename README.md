@@ -5,7 +5,7 @@ This is not just a port of the popular **json-server** for dart as it adds other
 
 ## Goal
 
-Upload a backend in 5 seconds!
+Up your backend in 5 Seconds!
 This will make it easier for those who take front-end video classes like Flutter and need a ready server. From here, just populate the json file and you will have a simple and ready to use database.
 
 ## Instalation
