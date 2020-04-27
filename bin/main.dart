@@ -3,14 +3,26 @@ import 'dart:io';
 import '../lib/src/server/dartio_server.dart';
 import '../lib/src/templates/templates.dart' as template;
 
+String version = '0.0.3';
+
 void main(List<String> arguments) async {
   if (arguments[0] == 'serve') {
     var server = await DartIOServer.getInstance();
     await server.start();
+  } else if (arguments[0] == '--version' || arguments[0] == '-v') {
+    print('Dartion v$version');
+  } else if (arguments[0] == 'upgrade') {
+    Process.runSync('pub', ['global', 'activate', 'dartion'], runInShell: true);
+    print('Dartion v$version');
   } else if (arguments[0] == 'init') {
-    var dir = Directory(arguments.length > 1 ? arguments[1] : '/');
+    var dir = Directory(arguments.length > 1 ? arguments[1] : '.');
 
-    if (dir.existsSync() && dir.listSync().isNotEmpty) {
+    if (!dir.existsSync()) {
+      dir.createSync(recursive: true);
+    }
+
+    print(dir.parent.path);
+    if (dir.listSync().isNotEmpty) {
       print('Folder must be empty!');
       return;
     }
