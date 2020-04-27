@@ -14,7 +14,7 @@ This will make it easier for those who take front-end video classes like Flutter
 
 https://dart.dev/get-dart
 
-2. Activate the slidy using the pub:
+2. Activate the dartion using the pub:
 
 ```dart
  pub global activate dartion
