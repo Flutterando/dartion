@@ -57,9 +57,79 @@ PATCH  /products/1   -> edit one product
 DELETE /products/1   -> delete one product
 ```
 
-POST, PUT and PATH requests must have ** body ** as json. It is not necessary to pass the ID, it is always auto incremented
+POST, PUT and PATH requests must have **body** as json. It is not necessary to pass the ID, it is always auto incremented
 
+## Authetication
 
+You can use jwt authentication in two small steps.
 
+1. use the **auth** property in your config.yaml 
+
+```yaml
+name: Test
+port: 3031
+db: db.json
+statics: public/
+
+auth:
+  key: dajdi3cdj8jw40jv89cj4uybfg9wh9vcnvb
+  exp: 3600
+  scape:
+    - animals
+    - cities
+```
+That's enough to protect your routes.
+The auth property has some configuration parameters:
+```yaml
+key -> to sign your token
+exp -> Token expiration time in seconds
+scap -> List of routes that will not be affected by token protection
+
+```
+
+2. Login with **/auth** route:
+
+To retrieve the token you need a credential. To retrieve the token you need a credential.
+A credential is basically **base64(email:password)**
+
+Veja um exemplo em Dart
+```dart
+
+String email = "jose@gmail.com";
+String password = "123";
+String info = "$email:$password";
+String encode = base64Encode(info.codeUnits);
+
+String credencials = "Basic $encode";
+
+```
+You can now consume a route **/auth** by passing **credentials** in the header of your request.
+
+exemple in dart
+```dart
+//using http package
+
+ Response response = await http.get('http://localhost:3031/auth',
+      headers: {'authorization': credencials});
+```
+This will return the Token with some user information.
+```json
+{
+  "user": {
+    "name": "Jose",
+    "email": "jose@gmail.com"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1ODc5NjQ1MTAsImlhdCI6MTU4Nzk2MDkxMCwiaXNzIjoiZGFydGlvIiwic3ViIjoibnVsbCJ9.5AeEIpYeu04fKINg6e8Ic5fpT0-KyZH8yPLOO6HoLVA",
+  "exp": 3600
+}
+```
+That's right! Now just use the token to access the routes:
+```dart
+Response response = await http.get('http://localhost:3031/products',
+      headers: {'authorization': "Bearer $token"});
+```
+NOTE: When using Authentication, you will need to have a **users** property in your **db.json** with a user list containing at least **email** and **password** in order to access.
+
+## Community
 
 For more details join our [Telegram Group Flutterando](https://t.me/flutterando)

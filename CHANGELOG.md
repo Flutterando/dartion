@@ -1,4 +1,4 @@
-## 0.0.3 - 27 Apr 2020
+## 0.0.4 - 27 Apr 2020
 
 - Initial version
 

@@ -37,7 +37,7 @@ class DartIOServer {
           handleHtml(request, 'index.html');
         } else if (request.uri.pathSegments.last.contains('.html')) {
           handleHtml(request, request.uri.pathSegments.join('/'));
-        } else if (request.uri.pathSegments.last == 'autheticate') {
+        } else if (request.uri.pathSegments.last == 'auth') {
           handleAuth(request);
         } else {
           handleGet(request);
@@ -84,6 +84,8 @@ class DartIOServer {
       var user = users.firstWhere((element) =>
           element['email'] == credentials[0] &&
           element['password'] == credentials[1]);
+
+      (user as Map).remove('password');
 
       request.response.statusCode = HttpStatus.ok;
       request.response.headers.contentType = ContentType.json;
