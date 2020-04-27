@@ -13,7 +13,7 @@ void main(List<String> arguments) async {
     print('Dartion v$version');
   } else if (arguments[0] == 'upgrade') {
     Process.runSync('pub', ['global', 'activate', 'dartion'], runInShell: true);
-    print('Dartion v$version');
+    print('Upgrated!');
   } else if (arguments[0] == 'init') {
     var dir = Directory(arguments.length > 1 ? arguments[1] : '.');
 
