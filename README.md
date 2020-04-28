@@ -1,22 +1,23 @@
 # Dartion
 
 Dartion is a RESTful mini web server based on JSON.
-This is not just a port of the popular **json-server** for dart as it adds other features like JWT authentication.
+This is not just a port of the popular **json-server** for Dart as it adds other features like JWT Authentication.
 
 ## Goal
 
-Up your backend in 5 Seconds!
-This will make it easier for those who take front-end video classes like Flutter and need a ready server. From here, just populate the json file and you will have a simple and ready to use database.
+Get your backend up in 5 seconds!
+This will make it easier for those who take front-end video classes like Flutter and need a server.
+From here, just populate the json file and you will have a simple and ready to use database.
 
-## Instalation
+## Installation
 
-1. First of all you need install the Dart:
+1. Get the Dart SDK:
 
 https://dart.dev/get-dart
 
-2. Activate the slidy using the pub:
+2. Activate Dartion using pub:
 
-```dart
+```
  pub global activate dartion
 ```
 
@@ -24,40 +25,44 @@ https://dart.dev/get-dart
 
 **Upgrade**:
 
-Updates dartion's version:
+Updates Dartion's version:
+
 ```
 dartion upgrade
 ```
 
 **Init server**:
 
-Exec this command in empty folder.
+Execute this command in an empty folder:
+
 ```
 dartion init
 ```
+
 This will create some configuration files for the quick operation of the server.
 
 **Start server**:
 
-This command will boot the server based on the settings in config.yaml.
+This command will boot the server based on the settings in `config.yaml`.
+
 ```
 dartion serve
 ```
 
 ## Route system
 
-Just when running Dartion, we already have a structure based on RESTful while the data persists in a .json file in the folder.
+When running Dartion, we have a structure based on RESTful while the data persists in a JSON file in the folder.
 
 ```
-GET    /products     -> get all Products
-GET    /products/1   -> get one product
-POST   /products     -> add more one product
-PUT    /products/1   -> edit one product
-PATCH  /products/1   -> edit one product
-DELETE /products/1   -> delete one product
+GET    /products     -> Get all products
+GET    /products/1   -> Get one product
+POST   /products     -> Add more one product
+PUT    /products/1   -> Edit one product
+PATCH  /products/1   -> Edit one product
+DELETE /products/1   -> Delete one product
 ```
 
-POST, PUT and PATH requests must have **body** as json. It is not necessary to pass the ID, it is always auto incremented
+POST, PUT and PATH requests must have **body** as JSON. It is not necessary to pass the ID as it is always auto incremented.
 
 ## File Upload
 
@@ -83,9 +88,9 @@ NOTE: The **/storage** route returns the file name.
 
 ## Authetication
 
-You can use jwt authentication in two small steps.
+You can use JWT Authentication in two steps.
 
-1. use the **auth** property in your config.yaml 
+1. Use the **auth** property in your `config.yaml`
 
 ```yaml
 name: Test
@@ -100,21 +105,23 @@ auth:
     - animals
     - cities
 ```
-That's enough to protect your routes.
-The auth property has some configuration parameters:
-```yaml
-key -> to sign your token
-exp -> Token expiration time in seconds
-scap -> List of routes that will not be affected by token protection
 
+That's enough to protect your routes.
+The auth property takes some configuration parameters:
+
+```yaml
+key -> To sign your token
+exp -> Token expiration time in seconds
+scape -> List of routes that will not be affected by token protection
 ```
 
-2. Login with **/auth** route:
+2. Login using the **/auth** route:
 
-To retrieve the token you need a credential. To retrieve the token you need a credential.
+To retrieve the token you need a credential.
 A credential is basically **base64(email:password)**
 
-Veja um exemplo em Dart
+See an example in Dart:
+
 ```dart
 
 String email = "jose@gmail.com";
@@ -125,16 +132,22 @@ String encode = base64Encode(info.codeUnits);
 String credencials = "Basic $encode";
 
 ```
-You can now consume a route **/auth** by passing **credentials** in the header of your request.
+
+You can now make a GET request to **/auth**, passing the **credentials** in the `authorization` header.
 
 exemple in dart
-```dart
-//using http package
 
- Response response = await http.get('http://localhost:3031/auth',
-      headers: {'authorization': credencials});
+```dart
+// Using the package http
+
+Response response = await http.get(
+  'http://localhost:3031/auth',
+  headers: {'authorization': credencials},
+);
 ```
-This will return the Token with some user information.
+
+This will return the token and some user information.
+
 ```json
 {
   "user": {
@@ -145,13 +158,18 @@ This will return the Token with some user information.
   "exp": 3600
 }
 ```
-That's right! Now just use the token to access the routes:
+
+That's it! Now, just use the token to access the routes:
+
 ```dart
-Response response = await http.get('http://localhost:3031/products',
-      headers: {'authorization': "Bearer $token"});
+Response response = await http.get(
+  'http://localhost:3031/products',
+  headers: {'authorization': "Bearer $token"},
+);
 ```
+
 NOTE: When using Authentication, you will need to have a **users** property in your **db.json** with a user list containing at least **email** and **password** in order to access.
 
 ## Community
 
-For more details join our [Telegram Group Flutterando](https://t.me/flutterando)
+For more details, join our [Telegram Group Flutterando](https://t.me/flutterando)
