@@ -3,7 +3,7 @@ import 'dart:io';
 import '../lib/src/server/dartio_server.dart';
 import '../lib/src/templates/templates.dart' as template;
 
-String version = '0.0.5';
+String version = '0.0.6';
 
 void main(List<String> arguments) async {
   if (arguments[0] == 'serve') {

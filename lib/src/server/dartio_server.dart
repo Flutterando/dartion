@@ -32,6 +32,16 @@ class DartIOServer {
     }
   }
 
+  bool checkFile(request) {
+    if (request.uri.pathSegments.length >= 2) {
+      return request.uri.pathSegments[request.uri.pathSegments.length - 2] ==
+              'file' &&
+          config.storage != null;
+    }
+
+    return false;
+  }
+
   void handleRequest(HttpRequest request) {
     try {
       var contentType = request.headers.contentType;
@@ -42,10 +52,7 @@ class DartIOServer {
           handleHtml(request, request.uri.pathSegments.join('/'));
         } else if (request.uri.pathSegments.last == 'auth') {
           handleAuth(request);
-        } else if (request
-                    .uri.pathSegments[request.uri.pathSegments.length - 2] ==
-                'file' &&
-            config.storage != null) {
+        } else if (checkFile(request)) {
           handleFile(request);
         } else {
           handleGet(request);
