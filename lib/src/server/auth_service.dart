@@ -15,7 +15,7 @@ class AuthService {
           ? null
           : (doc['aud'] as List).map<String>((e) => '$e').toList(),
       scape: doc['scape'] == null
-          ? null
+          ? []
           : (doc['scape'] as List).map<String>((e) => '$e').toList(),
     );
   }

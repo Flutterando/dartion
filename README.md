@@ -59,6 +59,28 @@ DELETE /products/1   -> delete one product
 
 POST, PUT and PATH requests must have **body** as json. It is not necessary to pass the ID, it is always auto incremented
 
+## File Upload
+
+You can configure Dartion to accept upload files such as images, pdf's, etc...
+Adds **storage** properties to config.yaml
+```yaml
+storage:
+  name: "file"
+  folder: storage/
+```
+
+File uploads work with "Multipart-form", so you can use the name property to **name** your upload.
+We can choose which folder the uploaded files will be on the server using the **folder** property.
+Then you will have two reserved routes, one to upload files and the other to retrieve those binaries.
+```
+POST /storage               -> Send files in Multipart-form
+GET  /file/:your-file.ext   -> Retrieve file 
+```
+
+NOTE: The **/storage** route returns the file name.
+
+
+
 ## Authetication
 
 You can use jwt authentication in two small steps.

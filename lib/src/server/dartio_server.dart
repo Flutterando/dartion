@@ -1,6 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:http_server/http_server.dart';
+import 'package:path/path.dart';
+
 import '../../dartion.dart';
 import '../config/config_model.dart';
 
@@ -39,6 +42,11 @@ class DartIOServer {
           handleHtml(request, request.uri.pathSegments.join('/'));
         } else if (request.uri.pathSegments.last == 'auth') {
           handleAuth(request);
+        } else if (request
+                    .uri.pathSegments[request.uri.pathSegments.length - 2] ==
+                'file' &&
+            config.storage != null) {
+          handleFile(request);
         } else {
           handleGet(request);
         }
@@ -47,6 +55,11 @@ class DartIOServer {
       } else if (request.method == 'POST' &&
           contentType?.mimeType == 'application/json') {
         handlePost(request);
+      } else if (request.method == 'POST' &&
+          contentType?.mimeType == 'multipart/form-data' &&
+          request.uri.pathSegments.last == 'storage' &&
+          config.storage != null) {
+        handleUpload(request);
       } else if (request.method == 'PUT' &&
           contentType?.mimeType == 'application/json') {
         handlePut(request);
@@ -64,6 +77,55 @@ class DartIOServer {
         ..statusCode = HttpStatus.internalServerError
         ..write('Exception: $e.');
     }
+  }
+
+  String get getSlash => Platform.isWindows ? '\\' : '/';
+
+  Future handleFile(HttpRequest request) async {
+    if (!middlewareJwt(request)) {
+      return;
+    }
+
+    final targetFile = File(
+        '${config.storage.folder}/${request.requestedUri.pathSegments.last}'
+            .replaceAll('//', '/'));
+    if (await targetFile.exists()) {
+      request.response.headers.contentType = ContentType.binary;
+      try {
+        await request.response.addStream(targetFile.openRead());
+      } catch (e) {
+        print("Couldn't read file: $e");
+      }
+    } else {
+      print("Can't open ${targetFile.path}.");
+      request.response.statusCode = HttpStatus.notFound;
+    }
+    await request.response.close();
+  }
+
+  Future handleUpload(HttpRequest request) async {
+    if (!middlewareJwt(request)) {
+      return;
+    }
+
+    var body = await HttpBodyHandler.processRequest(request);
+    HttpBodyFileUpload fileUploaded = body.body[config.storage.name];
+    var dir = Directory(config.storage.folder);
+
+    var name =
+        "${dir.path}storage_${DateTime.now().millisecondsSinceEpoch}.${fileUploaded.filename.split('.').last}";
+    final file = File(name);
+    if (!file.existsSync()) {
+      file.createSync(recursive: true);
+    }
+    await file.writeAsBytes(fileUploaded.content, mode: FileMode.writeOnly);
+    request.response
+      ..statusCode = HttpStatus.ok
+      ..headers.contentType = ContentType.json
+      ..write(jsonEncode({
+        'url': basename(file.path),
+      }))
+      ..close();
   }
 
   Future handleAuth(HttpRequest request) async {

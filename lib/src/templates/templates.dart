@@ -4,6 +4,10 @@ port: 3031
 db: db.json
 statics: public/
 
+# storage:
+#   folder: storage/
+#   name: "file"
+
 # auth:
 #   key: dajdi3cdj8jw40jv89cj4uybfg9wh9vcnvb
 #   exp: 3600
