@@ -178,7 +178,8 @@ class DartIOServer {
     }
 
     if (request.uri.pathSegments.isEmpty ||
-        request.uri.pathSegments.last.contains('.html')) {
+        request.uri.pathSegments.last.contains('.html') ||
+        config.auth.scape.contains(request.uri.pathSegments[0])) {
       return true;
     }
 

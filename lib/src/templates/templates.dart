@@ -12,8 +12,8 @@ statics: public/
 #   key: dajdi3cdj8jw40jv89cj4uybfg9wh9vcnvb
 #   exp: 3600
 #   scape:
-#     - animals
-#     - cities
+#     - storage
+#     - file
 ''';
 
 const String db = '''
@@ -42,42 +42,6 @@ const String db = '''
         {
             "title": "Ionic",
             "id": 2
-        }
-    ],
-    "cities": [
-        {
-            "name": "Manaus",
-            "id": 0
-        },
-        {
-            "name": "Fortaleza",
-            "id": 1
-        },
-        {
-            "name": "Maringá",
-            "id": 2
-        },
-        {
-            "name": "São Paulo",
-            "id": 3
-        }
-    ],
-    "animals": [
-        {
-            "name": "Cachorro",
-            "id": 0
-        },
-        {
-            "name": "Gato",
-            "id": 1
-        },
-        {
-            "name": "Pato",
-            "id": 2
-        },
-        {
-            "name": "Galo",
-            "id": 3
         }
     ]
 }
