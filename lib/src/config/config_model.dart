@@ -8,11 +8,17 @@ class Config {
   final IDatabase db;
   final int port;
   final String statics;
-  final AuthService auth;
-  final Storage storage;
+  final AuthService? auth;
+  final Storage? storage;
 
-  Config(
-      {this.name, this.db, this.port, this.statics, this.auth, this.storage});
+  Config({
+    this.name = 'Dartion Server',
+    required this.db,
+    required this.port,
+    this.statics = 'public',
+    this.auth,
+    this.storage,
+  });
 
   factory Config.formYaml(Map doc) {
     return Config(
@@ -20,8 +26,7 @@ class Config {
         db: Database(doc['db']),
         port: doc['port'],
         statics: doc['statics'],
-        storage:
-            doc['storage'] == null ? null : Storage.fromYaml(doc['storage']),
+        storage: doc['storage'] == null ? null : Storage.fromYaml(doc['storage']),
         auth: doc['auth'] == null ? null : AuthService.formYaml(doc['auth']));
   }
 }

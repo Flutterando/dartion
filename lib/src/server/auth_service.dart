@@ -3,33 +3,33 @@ import 'package:jaguar_jwt/jaguar_jwt.dart';
 class AuthService {
   final String key;
   final int exp;
-  final List<String> aud;
-  final List<String> scape;
+  final List<String>? aud;
+  final List<String>? scape;
 
-  AuthService({this.key, this.exp, this.aud, this.scape});
+  AuthService({
+    required this.key,
+    required this.exp,
+    this.aud,
+    this.scape,
+  });
   factory AuthService.formYaml(Map doc) {
     return AuthService(
       key: doc['key'],
       exp: doc['exp'],
-      aud: doc['aud'] == null
-          ? null
-          : (doc['aud'] as List).map<String>((e) => '$e').toList(),
-      scape: doc['scape'] == null
-          ? []
-          : (doc['scape'] as List).map<String>((e) => '$e').toList(),
+      aud: doc['aud'] == null ? null : (doc['aud'] as List).map<String>((e) => '$e').toList(),
+      scape: doc['scape'] == null ? [] : (doc['scape'] as List).map<String>((e) => '$e').toList(),
     );
   }
 
   String generateToken(int id) {
-    final claimSet = JwtClaim(
-        subject: '$id', issuer: 'dartio', maxAge: Duration(seconds: exp));
+    final claimSet = JwtClaim(subject: '$id', issuer: 'dartio', maxAge: Duration(seconds: exp));
 
     return issueJwtHS256(claimSet, key);
   }
 
-  String isValid(String token, String route) {
+  String? isValid(String token, String route) {
     try {
-      if (scape.contains(route)) {
+      if (scape?.contains(route) == true) {
         return null;
       }
       final decClaimSet = verifyJwtHS256Signature(token, key);

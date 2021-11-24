@@ -1,16 +1,19 @@
 name: dartion
 description: Dartion is a RESTful mini web server based on JSON. Up your backend in 5 Seconds!
-version: 0.0.7
+version: 1.0.0
 homepage: https://github.com/Flutterando/dartion
 
 environment:
-  sdk: '>=2.7.0 <3.0.0'
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   path: ^1.7.0
-  yaml: ^2.2.0
-  jaguar_jwt: ^2.1.6
-  http_server: ^0.9.8+3
+  yaml: ^3.1.0
+  jaguar_jwt: ^3.0.0
+  shelf: ^1.2.0
+  shelf_router: ^1.1.2
+  shelf_static: ^1.1.0
+  shelf_multipart: ^0.1.0
 
 dev_dependencies:
   pedantic: ^1.8.0

@@ -4,8 +4,8 @@ import 'package:dartion/src/config/database.dart';
 import 'package:test/test.dart';
 
 void main() {
-  IConfigRepository rep;
-  setUpAll(() {
+  late IConfigRepository rep;
+  setUp(() {
     rep = ConfigRepository();
   });
 
@@ -19,6 +19,7 @@ void main() {
     });
     test('get db all', () async {
       var config = await rep.getConfig('config.yaml');
+      await config.db.init();
 
       expect(config.db, isA<IDatabase>());
 
@@ -28,6 +29,7 @@ void main() {
 
     test('get db one item', () async {
       var config = await rep.getConfig('config.yaml');
+      await config.db.init();
       expect(config.db, isA<IDatabase>());
 
       var item = await config.db.get('products', 0);

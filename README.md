@@ -18,7 +18,7 @@ https://dart.dev/get-dart
 2. Activate Dartion using pub:
 
 ```
- pub global activate dartion
+ dart pub global activate dartion
 ```
 
 ## Commands
@@ -96,7 +96,7 @@ You can use JWT Authentication in two steps.
 name: Test
 port: 3031
 db: db.json
-statics: public/
+statics: public
 
 auth:
   key: dajdi3cdj8jw40jv89cj4uybfg9wh9vcnvb

@@ -1,17 +1,21 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:http_server/http_server.dart';
+import 'package:shelf/shelf.dart';
+import 'package:shelf/shelf_io.dart' as shelf_io;
+import 'package:shelf_static/shelf_static.dart';
 import 'package:path/path.dart';
 
 import '../../dartion.dart';
 import '../config/config_model.dart';
+import 'package:shelf_multipart/form_data.dart';
 
 class DartIOServer {
   final Config config;
-  HttpServer _server;
+  late HttpServer _server;
 
-  DartIOServer({this.config});
+  DartIOServer({required this.config});
 
   static Future<DartIOServer> getInstance() async {
     return DartIOServer(
@@ -20,363 +24,259 @@ class DartIOServer {
   }
 
   Future start() async {
-    _server = await HttpServer.bind(
-      InternetAddress.loopbackIPv4,
-      config.port,
-    );
+    await config.db.init();
+    var handler = const Pipeline().addMiddleware(logRequests()).addHandler(handleRequest);
+
+    _server = await shelf_io.serve(handler, InternetAddress.loopbackIPv4, config.port);
     print('Server ${config.name} started...');
     print('Listening on localhost:${_server.port}');
-
-    await for (HttpRequest request in _server) {
-      handleRequest(request);
-    }
   }
 
   bool checkFile(request) {
     if (request.uri.pathSegments.length >= 2) {
-      return request.uri.pathSegments[request.uri.pathSegments.length - 2] ==
-              'file' &&
-          config.storage != null;
+      return request.uri.pathSegments[request.uri.pathSegments.length - 2] == 'file' && config.storage != null;
     }
 
     return false;
   }
 
-  void handleRequest(HttpRequest request) {
+  FutureOr<Response> handleRequest(Request request) {
     try {
-      var contentType = request.headers.contentType;
-      if (request.method == 'GET') {
-        if (request.uri.pathSegments.isEmpty) {
-          handleHtml(request, 'index.html');
-        } else if (request.uri.pathSegments.last.contains('.html')) {
-          handleHtml(request, request.uri.pathSegments.join('/'));
-        } else if (request.uri.pathSegments.last == 'auth') {
-          handleAuth(request);
-        } else if (checkFile(request)) {
-          handleFile(request);
+      var mimeType = request.mimeType;
+      final method = request.method.toUpperCase();
+
+      if (method == 'GET') {
+        if (request.url.pathSegments.last == config.statics) {
+          return createStaticHandler(config.statics, defaultDocument: 'index.html')(request);
+        } else if (request.url.pathSegments.last == config.storage?.folder) {
+          return createStaticHandler(config.storage!.folder)(request);
+        } else if (request.url.pathSegments.last == 'auth') {
+          return handleAuth(request);
         } else {
-          handleGet(request);
+          return handleGet(request);
         }
-      } else if (request.method == 'DELETE') {
-        handleDelete(request);
-      } else if (request.method == 'POST' &&
-          contentType?.mimeType == 'application/json') {
-        handlePost(request);
-      } else if (request.method == 'POST' &&
-          contentType?.mimeType == 'multipart/form-data' &&
-          request.uri.pathSegments.last == 'storage' &&
-          config.storage != null) {
-        handleUpload(request);
-      } else if (request.method == 'PUT' &&
-          contentType?.mimeType == 'application/json') {
-        handlePut(request);
-      } else if (request.method == 'PATCH' &&
-          contentType?.mimeType == 'application/json') {
-        handlePatch(request);
+      } else if (method == 'DELETE') {
+        return handleDelete(request);
+      } else if (method == 'POST' && mimeType == 'application/json') {
+        return handlePost(request);
+      } else if (method == 'POST' && mimeType == 'multipart/form-data' && request.url.pathSegments.last == 'storage' && config.storage != null) {
+        return handleUpload(request);
+      } else if (method == 'PUT' && mimeType == 'application/json') {
+        return handlePut(request);
+      } else if (method == 'PATCH' && mimeType == 'application/json') {
+        return handlePatch(request);
       } else {
-        request.response
-          ..statusCode = HttpStatus.methodNotAllowed
-          ..write('Unsupported request: ${request.method}.')
-          ..close();
+        final body = jsonEncode({
+          'error': 'Unsupported request: ${request.method}.',
+        });
+        return Response(HttpStatus.methodNotAllowed, body: body);
       }
     } catch (e) {
-      request.response
-        ..statusCode = HttpStatus.internalServerError
-        ..write('Exception: $e.');
+      final body = jsonEncode({
+        'error': 'Exception: $e.',
+      });
+      return Response(HttpStatus.internalServerError, body: body);
     }
   }
 
   String get getSlash => Platform.isWindows ? '\\' : '/';
 
-  Future handleFile(HttpRequest request) async {
+  Future<Response> handleUpload(Request request) async {
     if (!middlewareJwt(request)) {
-      return;
+      return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
     }
 
-    final targetFile = File(
-        '${config.storage.folder}/${request.requestedUri.pathSegments.last}'
-            .replaceAll('//', '/'));
-    if (await targetFile.exists()) {
-      request.response.headers.contentType = ContentType.binary;
-      try {
-        await request.response.addStream(targetFile.openRead());
-      } catch (e) {
-        print("Couldn't read file: $e");
+    if (!request.isMultipartForm) {
+      return Response(401); // not a multipart request
+    }
+    await for (final formData in request.multipartFormData.where((event) => event.name == config.storage?.name)) {
+      var dir = Directory(config.storage!.folder);
+      var name = "${dir.path}storage_${DateTime.now().millisecondsSinceEpoch}.${formData.filename?.split('.').last}";
+      final file = File(name);
+      if (!file.existsSync()) {
+        file.createSync(recursive: true);
       }
-    } else {
-      print("Can't open ${targetFile.path}.");
-      request.response.statusCode = HttpStatus.notFound;
-    }
-    await request.response.close();
-  }
-
-  Future handleUpload(HttpRequest request) async {
-    if (!middlewareJwt(request)) {
-      return;
-    }
-
-    var body = await HttpBodyHandler.processRequest(request);
-    HttpBodyFileUpload fileUploaded = body.body[config.storage.name];
-    var dir = Directory(config.storage.folder);
-
-    var name =
-        "${dir.path}storage_${DateTime.now().millisecondsSinceEpoch}.${fileUploaded.filename.split('.').last}";
-    final file = File(name);
-    if (!file.existsSync()) {
-      file.createSync(recursive: true);
-    }
-    await file.writeAsBytes(fileUploaded.content, mode: FileMode.writeOnly);
-    request.response
-      ..statusCode = HttpStatus.ok
-      ..headers.contentType = ContentType.json
-      ..write(jsonEncode({
+      await file.writeAsBytes(await formData.part.readBytes(), mode: FileMode.writeOnly);
+      return Response.ok(jsonEncode({
         'url': basename(file.path),
-      }))
-      ..close();
+      }));
+    }
+
+    return Response.internalServerError();
   }
 
-  Future handleAuth(HttpRequest request) async {
-    var header = request.headers[HttpHeaders.authorizationHeader];
-    if (header == null) {
-      request.response
-        ..statusCode = HttpStatus.forbidden
-        ..write('Not found token Basic');
-      await request.response.close();
-      return;
+  Future<Response> handleAuth(Request request) async {
+    var token = request.headers[HttpHeaders.authorizationHeader];
+    if (token == null) {
+      return Response.forbidden(jsonEncode({
+        'error': 'Not found token Basic',
+      }));
     }
 
     try {
-      var credentials = String.fromCharCodes(
-              base64Decode(header[0].replaceFirst('Basic ', '')))
-          .split(':');
+      var credentials = String.fromCharCodes(base64Decode(token[0].replaceFirst('Basic ', ''))).split(':');
       var users = await config.db.getAll('users');
-      var user = users.firstWhere((element) =>
-          element['email'] == credentials[0] &&
-          element['password'] == credentials[1]);
+      var user = users.firstWhere((element) => element['email'] == credentials[0] && element['password'] == credentials[1]);
 
       (user as Map).remove('password');
 
-      request.response.statusCode = HttpStatus.ok;
-      request.response.headers.contentType = ContentType.json;
-      request.response.writeln(jsonEncode({
-        'user': user,
-        'token': config.auth.generateToken(user['id']),
-        'exp': config.auth.exp
-      }));
+      return Response.ok(
+        jsonEncode({'user': user, 'token': config.auth?.generateToken(user['id']), 'exp': config.auth?.exp}),
+        headers: {'content-type': 'application/json'},
+      );
     } catch (e) {
-      print(e);
-      request.response
-        ..statusCode = HttpStatus.forbidden
-        ..write('Forbidden Access');
+      return Response.forbidden(jsonEncode({'error': 'Forbidden Access'}));
     }
-    await request.response.close();
   }
 
-  bool middlewareJwt(HttpRequest request) {
+  bool middlewareJwt(Request request) {
     if (config.auth == null) {
       return true;
     }
 
-    if (request.uri.pathSegments.isEmpty ||
-        request.uri.pathSegments.last.contains('.html') ||
-        config.auth.scape.contains(request.uri.pathSegments[0])) {
+    if (request.url.pathSegments.isEmpty || config.auth?.scape?.contains(request.url.pathSegments[0]) == true) {
       return true;
     }
 
     var header = request.headers[HttpHeaders.authorizationHeader];
     if (header == null) {
-      request.response
-        ..statusCode = HttpStatus.forbidden
-        ..write('Not found token')
-        ..close();
       return false;
     }
 
     var token = header[0].replaceFirst('Bearer ', '');
 
-    var valid = config.auth.isValid(token, request.uri.pathSegments[0]);
+    var valid = config.auth?.isValid(token, request.url.pathSegments[0]);
 
     if (valid != null) {
-      request.response
-        ..statusCode = HttpStatus.forbidden
-        ..write(valid)
-        ..close();
       return false;
     }
 
     return true;
   }
 
-  Future handleHtml(HttpRequest request, String path) async {
-    var targetFile = File('${Directory(config.statics).path}/$path');
-    if (await targetFile.exists()) {
-      request.response.headers.contentType = ContentType.html;
-      try {
-        await request.response.addStream(targetFile.openRead());
-      } catch (e) {
-        print("Couldn't read file: $e");
+  Future<dynamic> getSegment(Request request) async {
+    if (request.url.pathSegments.length > 1) {
+      final segment = int.tryParse(request.url.pathSegments[1]);
+      if (segment != null) {
+        return config.db.get(request.url.pathSegments.first, segment);
       }
+      return null;
     } else {
-      print("Can't open ${targetFile.path}.");
-      request.response.statusCode = HttpStatus.notFound;
-    }
-    await request.response.close();
-  }
-
-  Future getSegment(HttpRequest request) async {
-    if (request.uri.pathSegments.length > 1) {
-      return config.db.get(request.uri.pathSegments[0],
-          int.tryParse(request.uri.pathSegments[1]));
-    } else {
-      return config.db.getAll(request.uri.pathSegments[0]);
+      return config.db.getAll(request.url.pathSegments[0]);
     }
   }
 
-  Future handleGet(HttpRequest request) async {
+  Future<Response> handleGet(Request request) async {
     if (!middlewareJwt(request)) {
-      return;
+      return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
     }
-    final response = request.response;
 
     try {
       dynamic seg = await getSegment(request);
 
       if (seg == null) {
-        response.statusCode = HttpStatus.notFound;
-        response.writeln('Not found');
+        return Response.notFound(jsonEncode({'error': 'Not found'}));
       } else {
-        response.statusCode = HttpStatus.ok;
-        response.headers.contentType = ContentType.json;
-        response.writeln(jsonEncode(seg));
+        return Response.ok(jsonEncode(seg), headers: {'content-type': 'application/json'});
       }
     } catch (e) {
-      response.statusCode = HttpStatus.internalServerError;
-      response.writeln('Internal Error');
+      return Response.notFound(jsonEncode({'error': 'Internal Error. $e'}));
     }
-    await response.close();
   }
 
-  Future handlePost(HttpRequest request) async {
+  Future<Response> handlePost(Request request) async {
     if (!middlewareJwt(request)) {
-      return;
+      return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
     }
-    final response = request.response;
     try {
-      var content = await utf8.decoder.bind(request).join(); /*2*/
+      var content = await request.readAsString(); /*2*/
       var data = jsonDecode(content) as Map;
-      dynamic seg = await config.db.getAll(request.uri.pathSegments[0]);
+      dynamic seg = await config.db.getAll(request.url.pathSegments[0]);
 
       if (seg == null) {
-        response.statusCode = HttpStatus.notFound;
-        response.writeln('Not found');
+        return Response.notFound(jsonEncode({'error': 'Not found'}));
       } else {
-        response.statusCode = HttpStatus.ok;
-        response.headers.contentType = ContentType.json;
         data['id'] = seg.length + 1;
         seg.add(data);
         await config.db.save();
-        response.writeln(jsonEncode(data));
+        return Response.ok(jsonEncode(data), headers: {'content-type': 'application/json'});
       }
     } catch (e) {
-      response.statusCode = HttpStatus.internalServerError;
-      response.writeln('Internal Error');
+      return Response.notFound(jsonEncode({'error': 'Internal Error. $e'}));
     }
-    await response.close();
   }
 
-  Future handlePut(HttpRequest request) async {
+  Future<Response> handlePut(Request request) async {
     if (!middlewareJwt(request)) {
-      return;
+      return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
     }
-    final response = request.response;
     try {
-      var content = await utf8.decoder.bind(request).join(); /*2*/
+      var content = await request.readAsString(); /*2*/
       var data = jsonDecode(content) as Map;
-      dynamic seg = await config.db.getAll(request.uri.pathSegments[0]);
+      dynamic seg = await config.db.getAll(request.url.pathSegments[0]);
 
       if (seg == null) {
-        response.statusCode = HttpStatus.notFound;
-        response.writeln('Not found');
+        return Response.notFound(jsonEncode({'error': 'Not found'}));
       } else {
-        data['id'] = int.parse(request.uri.pathSegments[1]);
-        var position = (seg as List).indexWhere((element) =>
-            element['id'] == int.parse(request.uri.pathSegments[1]));
+        data['id'] = int.parse(request.url.pathSegments[1]);
+        var position = (seg as List).indexWhere((element) => element['id'] == int.parse(request.url.pathSegments[1]));
         seg[position] = data;
         await config.db.save();
-        response.statusCode = HttpStatus.ok;
-        response.headers.contentType = ContentType.json;
-        response.writeln(jsonEncode(data));
+        return Response.ok(jsonEncode(data), headers: {'content-type': 'application/json'});
       }
     } catch (e) {
-      response.statusCode = HttpStatus.internalServerError;
-      response.writeln('Internal Error');
+      return Response.notFound(jsonEncode({'error': 'Internal Error. $e'}));
     }
-
-    await response.close();
   }
 
-  Future handleDelete(HttpRequest request) async {
+  Future<Response> handleDelete(Request request) async {
     if (!middlewareJwt(request)) {
-      return;
+      return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
     }
-    final response = request.response;
     try {
       dynamic seg = await config.db.getAll(
-        request.uri.pathSegments[0],
+        request.url.pathSegments.first,
       );
 
       if (seg == null) {
-        response.statusCode = HttpStatus.notFound;
-        response.writeln('Not found');
+        return Response.notFound(jsonEncode({'error': 'Not found'}));
       } else {
         (seg as List).removeWhere(
-          (element) => element['id'] == int.parse(request.uri.pathSegments[1]),
+          (element) => element['id'] == int.parse(request.url.pathSegments[1]),
         );
-        response.statusCode = HttpStatus.ok;
-        response.headers.contentType = ContentType.json;
-        seg = request.uri.pathSegments[1];
         await config.db.save();
-        response.writeln(jsonEncode({'data': 'ok!'}));
+        return Response.ok(jsonEncode({'data': 'ok!'}));
       }
     } catch (e) {
-      response.statusCode = HttpStatus.internalServerError;
-      response.writeln('Internal Error');
+      return Response.internalServerError(body: jsonEncode({'error': 'Internal Error'}));
     }
-    await response.close();
   }
 
-  Future handlePatch(HttpRequest request) async {
+  Future<Response> handlePatch(Request request) async {
     if (!middlewareJwt(request)) {
-      return;
+      return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
     }
-    final response = request.response;
 
     try {
-      var content = await utf8.decoder.bind(request).join(); /*2*/
+      var content = await request.readAsString(); /*2*/
       var data = jsonDecode(content) as Map;
-      dynamic seg = await config.db.getAll(request.uri.pathSegments[0]);
+      dynamic seg = await config.db.getAll(request.url.pathSegments[0]);
 
       if (seg == null) {
-        response.statusCode = HttpStatus.notFound;
-        response.writeln('Not found');
+        return Response.notFound(jsonEncode({'error': 'Not found'}));
       } else {
-        response.statusCode = HttpStatus.ok;
-        response.headers.contentType = ContentType.json;
-        data['id'] = int.parse(request.uri.pathSegments[1]);
-        var position = (seg as List).indexWhere((element) =>
-            element['id'] == int.parse(request.uri.pathSegments[1]));
+        data['id'] = int.parse(request.url.pathSegments[1]);
+        var position = (seg as List).indexWhere((element) => element['id'] == int.parse(request.url.pathSegments[1]));
 
         data.forEach((key, value) {
           seg[position][key] = value;
         });
 
         await config.db.save();
-        response.writeln(jsonEncode(data));
+        return Response.ok(jsonEncode(data), headers: {'content-type': 'application/json'});
       }
     } catch (e) {
-      response.statusCode = HttpStatus.internalServerError;
-      response.writeln('Internal Error');
+      return Response.internalServerError(body: jsonEncode({'error': 'Internal Error'}));
     }
-    await response.close();
   }
 }
