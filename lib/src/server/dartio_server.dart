@@ -6,6 +6,7 @@ import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_static/shelf_static.dart';
 import 'package:path/path.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../dartion.dart';
 import '../config/config_model.dart';
@@ -14,6 +15,7 @@ import 'package:shelf_multipart/form_data.dart';
 class DartIOServer {
   final Config config;
   late HttpServer _server;
+  var uuid = Uuid();
 
   DartIOServer({required this.config});
 
@@ -156,11 +158,7 @@ class DartIOServer {
 
   Future<dynamic> getSegment(Request request) async {
     if (request.url.pathSegments.length > 1) {
-      final segment = int.tryParse(request.url.pathSegments[1]);
-      if (segment != null) {
-        return config.db.get(request.url.pathSegments.first, segment);
-      }
-      return null;
+      return config.db.get(request.url.pathSegments.first, request.url.pathSegments[1]);
     } else {
       return config.db.getAll(request.url.pathSegments[0]);
     }
@@ -191,14 +189,15 @@ class DartIOServer {
     try {
       var content = await request.readAsString(); /*2*/
       var data = jsonDecode(content) as Map;
+      final key = request.url.pathSegments[0];
       dynamic seg = await config.db.getAll(request.url.pathSegments[0]);
 
       if (seg == null) {
         return Response.notFound(jsonEncode({'error': 'Not found'}));
       } else {
-        data['id'] = seg.length + 1;
+        data['id'] = uuid.v1();
         seg.add(data);
-        await config.db.save();
+        await config.db.save(key, seg);
         return Response.ok(jsonEncode(data), headers: {'content-type': 'application/json'});
       }
     } catch (e) {
@@ -213,15 +212,18 @@ class DartIOServer {
     try {
       var content = await request.readAsString(); /*2*/
       var data = jsonDecode(content) as Map;
-      dynamic seg = await config.db.getAll(request.url.pathSegments[0]);
+      final key = request.url.pathSegments[0];
+      dynamic seg = await config.db.getAll(key);
 
       if (seg == null) {
         return Response.notFound(jsonEncode({'error': 'Not found'}));
       } else {
-        data['id'] = int.parse(request.url.pathSegments[1]);
-        var position = (seg as List).indexWhere((element) => element['id'] == int.parse(request.url.pathSegments[1]));
-        seg[position] = data;
-        await config.db.save();
+        data['id'] = request.url.pathSegments[1];
+        var position = (seg as List).indexWhere((element) => element['id'] == request.url.pathSegments[1]);
+        data.forEach((key, value) {
+          seg[position][key] = value;
+        });
+        await config.db.save(key, seg);
         return Response.ok(jsonEncode(data), headers: {'content-type': 'application/json'});
       }
     } catch (e) {
@@ -234,18 +236,17 @@ class DartIOServer {
       return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
     }
     try {
-      dynamic seg = await config.db.getAll(
-        request.url.pathSegments.first,
-      );
+      final key = request.url.pathSegments[0];
+      dynamic seg = await config.db.getAll(key);
 
       if (seg == null) {
         return Response.notFound(jsonEncode({'error': 'Not found'}));
       } else {
         (seg as List).removeWhere(
-          (element) => element['id'] == int.parse(request.url.pathSegments[1]),
+          (element) => element['id'] == request.url.pathSegments[1],
         );
-        await config.db.save();
-        return Response.ok(jsonEncode({'data': 'ok!'}));
+        await config.db.save(key, seg);
+        return Response.ok(jsonEncode({'data': 'ok!'}), headers: {'content-type': 'application/json'});
       }
     } catch (e) {
       return Response.internalServerError(body: jsonEncode({'error': 'Internal Error'}));
@@ -260,7 +261,9 @@ class DartIOServer {
     try {
       var content = await request.readAsString(); /*2*/
       var data = jsonDecode(content) as Map;
-      dynamic seg = await config.db.getAll(request.url.pathSegments[0]);
+      final key = request.url.pathSegments[0];
+
+      dynamic seg = await config.db.getAll(key);
 
       if (seg == null) {
         return Response.notFound(jsonEncode({'error': 'Not found'}));
@@ -272,7 +275,7 @@ class DartIOServer {
           seg[position][key] = value;
         });
 
-        await config.db.save();
+        await config.db.save(key, seg);
         return Response.ok(jsonEncode(data), headers: {'content-type': 'application/json'});
       }
     } catch (e) {

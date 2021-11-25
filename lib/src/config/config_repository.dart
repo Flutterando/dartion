@@ -11,7 +11,18 @@ abstract class IConfigRepository {
 class ConfigRepository implements IConfigRepository {
   @override
   Future<Config> getConfig(String path) async {
-    Map doc = loadYaml(await File(path).readAsString());
+    final yaml = File(path);
+    late Map doc;
+    if (yaml.existsSync()) {
+      doc = loadYaml(await File(path).readAsString());
+    } else {
+      doc = loadYaml('''
+name: Dartion Server
+port: 3031
+db: db.json
+''');
+    }
+
     return Config.formYaml(doc);
   }
 }

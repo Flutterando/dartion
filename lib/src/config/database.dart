@@ -3,9 +3,9 @@ import 'dart:io';
 
 abstract class IDatabase {
   Future init();
-  Future save();
+  Future save(String key, dynamic seg);
   Future<List> getAll(String query);
-  Future<Map<String, dynamic>> get(String query, int id);
+  Future<Map<String, dynamic>> get(String query, String id);
 }
 
 class Database implements IDatabase {
@@ -16,23 +16,31 @@ class Database implements IDatabase {
 
   @override
   Future init() async {
-    _json = jsonDecode(await File(path).readAsString());
+    final db = File(path);
+    if (db.existsSync()) {
+      _json = jsonDecode(await db.readAsString());
+    } else {
+      await db.create(recursive: true);
+      await db.writeAsString('{}');
+      _json = {};
+    }
   }
 
   @override
   Future<List> getAll(String query) async {
     var db = _json;
-    return db[query];
+    return db[query] ?? [];
   }
 
   @override
-  Future<Map<String, dynamic>> get(String query, int id) async {
+  Future<Map<String, dynamic>> get(String query, String id) async {
     var db = await getAll(query);
     return db.firstWhere((element) => element['id'] == id);
   }
 
   @override
-  Future save() async {
+  Future save(String key, dynamic seg) async {
+    _json[key] = seg;
     await File(path).writeAsString(jsonEncode(_json));
   }
 }

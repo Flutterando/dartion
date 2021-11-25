@@ -25,7 +25,7 @@ class Config {
         name: doc['name'],
         db: Database(doc['db']),
         port: doc['port'],
-        statics: doc['statics'],
+        statics: doc['statics'] ?? 'public',
         storage: doc['storage'] == null ? null : Storage.fromYaml(doc['storage']),
         auth: doc['auth'] == null ? null : AuthService.formYaml(doc['auth']));
   }

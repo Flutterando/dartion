@@ -6,14 +6,14 @@
     "configurations": [
         {
             "name": "serve",
-            "program": "bin/main.dart",
+            "program": "bin/dartion.dart",
             "args": ["serve"],
             "request": "launch",
             "type": "dart"
         },
         {
             "name": "init",
-            "program": "bin/main.dart",
+            "program": "bin/dartion.dart",
             "args": ["init", "example"],
             "request": "launch",
             "type": "dart"
