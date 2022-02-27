@@ -116,14 +116,30 @@ class DartIOServer {
     }
 
     try {
-      var credentials = String.fromCharCodes(base64Decode(token[0].replaceFirst('Basic ', ''))).split(':');
+      var credentials =
+        //O token é uma string, e ele estava sendo utilizado como token[0], o que retornaria apenas a letra B
+          String.fromCharCodes(base64Decode(token.replaceFirst('Basic ', '')))
+              .split(':');
       var users = await config.db.getAll('users');
-      var user = users.firstWhere((element) => element['email'] == credentials[0] && element['password'] == credentials[1]);
-
-      (user as Map).remove('password');
+      Map user = users.firstWhere((element) =>
+          element['email'] == credentials[0] &&
+          element['password'] == credentials[1]);
+      //Todo o codigo do newUser foi feito pois ele estava removendo o password do users, ou seja, se eu tentasse realizar o login novamente não funcionaria. 
+      //Provavelmente ele funcionaria em um servidor, mas acho que deve ser mehor assim, pois se trata de um plugin para testes de banco de dados
+      int index = user.keys.toList().indexOf("password");
+      
+      List keys = user.keys.toList();
+      keys.removeAt(index);
+      List values = user.values.toList();
+      values.removeAt(index);
+      Map newUser = Map.fromIterables(keys, values);
 
       return Response.ok(
-        jsonEncode({'user': user, 'token': config.auth?.generateToken(user['id']), 'exp': config.auth?.exp}),
+        jsonEncode({
+          'user': newUser,
+          'token': config.auth?.generateToken(user['id']),
+          'exp': config.auth?.exp
+        }),
         headers: {'content-type': 'application/json'},
       );
     } catch (e) {
