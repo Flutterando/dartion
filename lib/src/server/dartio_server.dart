@@ -32,7 +32,7 @@ class DartIOServer {
 
     _server = await shelf_io.serve(handler, host, config.port);
     print('Server ${config.name} started...');
-    print('Listening on localhost:${_server.port}');
+    print('Listening on ${_server.address.host}:${_server.port}');
   }
 
   bool checkFile(request) {
