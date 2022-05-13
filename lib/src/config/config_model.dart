@@ -7,6 +7,7 @@ class Config {
   final String name;
   final IDatabase db;
   final int port;
+  final String? host;
   final String statics;
   final AuthService? auth;
   final Storage? storage;
@@ -15,6 +16,7 @@ class Config {
     this.name = 'Dartion Server',
     required this.db,
     required this.port,
+    this.host,
     this.statics = 'public',
     this.auth,
     this.storage,
@@ -25,6 +27,7 @@ class Config {
         name: doc['name'],
         db: Database(doc['db']),
         port: doc['port'],
+        host: doc['host'],
         statics: doc['statics'] ?? 'public',
         storage: doc['storage'] == null ? null : Storage.fromYaml(doc['storage']),
         auth: doc['auth'] == null ? null : AuthService.formYaml(doc['auth']));

@@ -32,7 +32,7 @@ void main() {
       await config.db.init();
       expect(config.db, isA<IDatabase>());
 
-      var item = await config.db.get('products', 0);
+      var item = await config.db.get('products', '0');
       expect(item['title'], 'Flutter 2');
     });
 

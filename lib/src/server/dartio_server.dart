@@ -28,8 +28,9 @@ class DartIOServer {
   Future start() async {
     await config.db.init();
     var handler = const Pipeline().addMiddleware(logRequests()).addHandler(handleRequest);
+    var host = config.host ?? InternetAddress.loopbackIPv4;
 
-    _server = await shelf_io.serve(handler, InternetAddress.loopbackIPv4, config.port);
+    _server = await shelf_io.serve(handler, host, config.port);
     print('Server ${config.name} started...');
     print('Listening on localhost:${_server.port}');
   }
