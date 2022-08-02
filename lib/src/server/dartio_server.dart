@@ -128,7 +128,8 @@ class DartIOServer {
         headers: {'content-type': 'application/json'},
       );
     } catch (e) {
-      return Response.forbidden(jsonEncode({'error': 'Forbidden Access'}));
+      
+      return Response(config.unauthorizedStatusCode, body: jsonEncode({'error': 'Forbidden Access'}), headers: {'content-type': 'application/json'});
     }
   }
 

@@ -11,6 +11,7 @@ class Config {
   final String statics;
   final AuthService? auth;
   final Storage? storage;
+  final int unauthorizedStatusCode;
 
   Config({
     this.name = 'Dartion Server',
@@ -20,6 +21,7 @@ class Config {
     this.statics = 'public',
     this.auth,
     this.storage,
+    this.unauthorizedStatusCode = 403
   });
 
   factory Config.formYaml(Map doc) {
@@ -30,6 +32,7 @@ class Config {
         host: doc['host'],
         statics: doc['statics'] ?? 'public',
         storage: doc['storage'] == null ? null : Storage.fromYaml(doc['storage']),
-        auth: doc['auth'] == null ? null : AuthService.formYaml(doc['auth']));
+        auth: doc['auth'] == null ? null : AuthService.formYaml(doc['auth']),
+        unauthorizedStatusCode: doc['unauthorizedStatusCode'] ?? 403);
   }
 }
