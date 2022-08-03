@@ -155,7 +155,7 @@ class DartIOServer {
       return false;
     }
 
-    var token = header[0].replaceFirst('Bearer ', '');
+    var token = header.replaceFirst('Bearer ', '');
 
     var valid = config.auth?.isValid(token, request.url.pathSegments[0]);
 

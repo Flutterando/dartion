@@ -1,6 +1,6 @@
 name: dartion
 description: Dartion is a RESTful mini web server based on JSON. Up your backend in 5 Seconds!
-version: 1.0.12
+version: 1.0.13
 homepage: https://github.com/Flutterando/dartion
 
 environment:
