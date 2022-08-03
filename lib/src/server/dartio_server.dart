@@ -117,7 +117,7 @@ class DartIOServer {
     }
 
     try {
-      var credentials = String.fromCharCodes(base64Decode(token[0].replaceFirst('Basic ', ''))).split(':');
+      var credentials = String.fromCharCodes(base64Decode(token.replaceFirst('Basic ', ''))).split(':');
       var users = await config.db.getAll('users');
       var user = users.firstWhere((element) => element['email'] == credentials[0] && element['password'] == credentials[1]);
 
