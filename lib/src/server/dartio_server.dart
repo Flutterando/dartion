@@ -192,7 +192,13 @@ class DartIOServer {
     }
   }
 
-  Response responseUnauthorized() => Response(config.unauthorizedStatusCode, body:jsonEncode({'error': 'middlewareJwt'}));
+  Response responseUnauthorized() => Response(
+        config.unauthorizedStatusCode,
+        body: jsonEncode({'error': 'middlewareJwt'}),
+        headers: {
+          'content-type': 'application/json'
+        }
+      );
 
   Future<Response> handlePost(Request request) async {
     if (!middlewareJwt(request)) {
