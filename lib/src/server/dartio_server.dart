@@ -86,7 +86,7 @@ class DartIOServer {
 
   Future<Response> handleUpload(Request request) async {
     if (!middlewareJwt(request)) {
-      return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
+      return responseUnauthorized();
     }
 
     if (!request.isMultipartForm) {
@@ -129,7 +129,7 @@ class DartIOServer {
       );
     } catch (e) {
       
-      return Response(config.unauthorizedStatusCode, body: jsonEncode({'error': 'Forbidden Access'}), headers: {'content-type': 'application/json'});
+      return Response.forbidden(jsonEncode({'error': 'Forbidden Access'}));
     }
   }
 
@@ -168,7 +168,7 @@ class DartIOServer {
 
   Future<Response> handleGet(Request request) async {
     if (!middlewareJwt(request)) {
-      return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
+      return responseUnauthorized();
     }
 
     try {
@@ -184,9 +184,11 @@ class DartIOServer {
     }
   }
 
+  Response responseUnauthorized() => Response(config.unauthorizedStatusCode, body:jsonEncode({'error': 'middlewareJwt'}));
+
   Future<Response> handlePost(Request request) async {
     if (!middlewareJwt(request)) {
-      return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
+      return responseUnauthorized();
     }
     try {
       var content = await request.readAsString(); /*2*/
@@ -209,7 +211,7 @@ class DartIOServer {
 
   Future<Response> handlePut(Request request) async {
     if (!middlewareJwt(request)) {
-      return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
+      return responseUnauthorized();
     }
     try {
       var content = await request.readAsString(); /*2*/
@@ -235,7 +237,7 @@ class DartIOServer {
 
   Future<Response> handleDelete(Request request) async {
     if (!middlewareJwt(request)) {
-      return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
+      return responseUnauthorized();
     }
     try {
       final key = request.url.pathSegments[0];
@@ -257,7 +259,7 @@ class DartIOServer {
 
   Future<Response> handlePatch(Request request) async {
     if (!middlewareJwt(request)) {
-      return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
+      return responseUnauthorized();
     }
 
     try {
