@@ -120,13 +120,21 @@ class DartIOServer {
       var credentials = String.fromCharCodes(base64Decode(token.replaceFirst('Basic ', ''))).split(':');
       var users = await config.db.getAll('users');
       var user = users.firstWhere((element) => element['email'] == credentials[0] && element['password'] == credentials[1]);
-
-      (user as Map).remove('password');
-
-      return Response.ok(
-        jsonEncode({'user': user, 'token': config.auth?.generateToken(user['id']), 'exp': config.auth?.exp}),
-        headers: {'content-type': 'application/json'},
-      );
+      
+      if(user != null){
+        final userMap = {
+          ...(user as Map)
+        };
+        userMap.remove('password');
+        
+        return Response.ok(
+          jsonEncode({'user': userMap, 'token': config.auth?.generateToken(user['id']), 'exp': config.auth?.exp}),
+          headers: {'content-type': 'application/json'},
+        );
+      }
+      
+      return Response.forbidden(jsonEncode({'error': 'Forbidden Access'}));
+    
     } catch (e) {
       
       return Response.forbidden(jsonEncode({'error': 'Forbidden Access'}));

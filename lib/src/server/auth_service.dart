@@ -21,7 +21,7 @@ class AuthService {
     );
   }
 
-  String generateToken(int id) {
+  String generateToken(String id) {
     final claimSet = JwtClaim(subject: '$id', issuer: 'dartio', maxAge: Duration(seconds: exp));
 
     return issueJwtHS256(claimSet, key);

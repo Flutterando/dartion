@@ -20,6 +20,10 @@ class ConfigRepository implements IConfigRepository {
 name: Dartion Server
 port: 3031
 db: db.json
+
+auth:
+  key: dajdi3cdj8jw40jv89cj4uybfg9wh9vcnvb
+  exp: 3600
 ''');
     }
 

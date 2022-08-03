@@ -1,4 +1,13 @@
 {
+    
+    "users": [
+        {
+            "id": "0",
+            "name": "Robert",
+            "email": "robert@gmail.com",
+            "password": "123"
+        }
+    ],
     "products": [
         {
             "title": "Flutter 2",
