@@ -54,12 +54,13 @@ dartion serve
 When running Dartion, we have a structure based on RESTful while the data persists in a JSON file in the folder.
 
 ```
-GET    /products     -> Get all products
-GET    /products/1   -> Get one product
-POST   /products     -> Add more one product
-PUT    /products/1   -> Edit one product
-PATCH  /products/1   -> Edit one product
-DELETE /products/1   -> Delete one product
+GET    /products                     -> Get all products
+GET    /products?page=1&limit=10     -> Get all paginated products
+GET    /products/1                   -> Get one product
+POST   /products                     -> Add more one product
+PUT    /products/1                   -> Edit one product
+PATCH  /products/1                   -> Edit one product
+DELETE /products/1                   -> Delete one product
 ```
 
 POST, PUT and PATH requests must have **body** as JSON. It is not necessary to pass the ID as it is always auto incremented.

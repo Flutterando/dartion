@@ -185,11 +185,44 @@ class DartIOServer {
       if (seg == null) {
         return Response.notFound(jsonEncode({'error': 'Not found'}));
       } else {
+
+        final params = request.url.queryParameters;
+
+        if(params.containsKey('page')){
+          return handleGetPaginate(seg, params);
+        }
+
         return Response.ok(jsonEncode(seg), headers: {'content-type': 'application/json'});
       }
     } catch (e) {
       return Response.notFound(jsonEncode({'error': 'Internal Error. $e'}));
     }
+  }
+
+
+  Future<Response> handleGetPaginate(dynamic seg, Map<String, String> params) async {
+    
+    final page = int.parse(params['page'] ?? '1') - 1;
+    final limit = int.parse(params['limit'] ?? '10');
+    final totalList = seg.length;
+    var start = 0;
+
+    if(page == 1){
+      start = limit;
+    }else if (page > 1){
+      start = limit * page;
+    }
+
+    if(start > totalList){
+      start = totalList;
+    }
+
+    var end = start + limit;
+    if(end > totalList){
+      end = totalList;
+    }
+    
+    return Response.ok(jsonEncode(seg.sublist(start, end)), headers: {'content-type': 'application/json'});
   }
 
   Response responseUnauthorized() => Response(

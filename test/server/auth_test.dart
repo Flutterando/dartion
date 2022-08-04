@@ -8,7 +8,7 @@ void main() {
           key: 'dajdi3cdj8jw40jv89cj4uybfg9wh9vcnvb',
           exp: 3600,
           aud: ['test.dd']);
-      var token = service.generateToken(2);
+      var token = service.generateToken('2');
       print(token);
       expect(token, isA<String>());
     });
@@ -32,7 +32,7 @@ void main() {
           aud: ['test.dd'],
           scape: []);
 
-      var token = service.generateToken(2);
+      var token = service.generateToken('2');
       expect(service.isValid(token, 'products'), null);
     });
     test('check scaped route', () async {
