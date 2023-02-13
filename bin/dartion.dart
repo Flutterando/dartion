@@ -41,8 +41,8 @@ void main(List<String> arguments) async {
     var index = File('${dir.path}/public/index.html');
     index.createSync(recursive: true);
     index.writeAsStringSync(template.index);
-    print('Finished!');
-    print('Use dartio serve!');
+    stdout.write('Dartion configuration has finished!');
+    stdout.write('To start, you can now use the command: dartion serve');
   } else {
     exit(0);
   }
