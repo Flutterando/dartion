@@ -20,7 +20,7 @@ class Config {
     this.storage,
   });
 
-  factory Config.formYaml(Map doc) {
+  factory Config.fromYaml(Map doc) {
     return Config(
       name: doc['name'],
       db: Database(doc['db']),
@@ -33,7 +33,7 @@ class Config {
             ),
       auth: doc['auth'] == null
           ? null
-          : AuthService.formYaml(
+          : AuthService.fromYaml(
               doc['auth'],
             ),
     );

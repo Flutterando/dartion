@@ -14,11 +14,11 @@ void main() {
       final config = await rep.getConfig('config.yaml');
 
       expect(config, isA<Config>());
-      expect(config.name, 'Test');
+      expect(config.name, 'Dartion Server');
       expect(config.port, 3031);
     });
 
-    test('get db all', () async {
+    test('get list from db entries', () async {
       final config = await rep.getConfig('config.yaml');
       await config.db.init();
 
@@ -37,17 +37,18 @@ void main() {
       expect(item['title'], 'Flutter 2');
     });
 
-    // test('save', () async {
-    //   var config = await rep.getConfig('config.yaml');
-    //   expect(config.db, isA<IDatabase>());
+    test('save item to db', () async {
+      final config = await rep.getConfig('config.yaml');
+      expect(config.db, isA<IDatabase>());
 
-    //   var item = await config.db.get('products', 1);
-    //   item['title'] = 'Flutter 2';
-    //   expect(item['title'], 'Flutter 2');
-    //   await config.db.save();
-    //   var config2 = await rep.getConfig('config.yaml');
-    //   var item2 = await config2.db.get('products', 1);
-    //   expect(item2['title'], 'Flutter 2');
-    // });
+      final item = await config.db.get('products', '1');
+      item['title'] = 'Flutter 2';
+      expect(item['title'], 'Flutter 2');
+
+      await config.db.save('title', 'Flutter 2');
+      final config2 = await rep.getConfig('config.yaml');
+      final item2 = await config2.db.get('products', '1');
+      expect(item2['title'], 'Flutter 2');
+    });
   });
 }

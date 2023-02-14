@@ -12,7 +12,7 @@ class AuthService {
     this.aud,
     this.scape,
   });
-  factory AuthService.formYaml(Map doc) {
+  factory AuthService.fromYaml(Map doc) {
     return AuthService(
       key: doc['key'],
       exp: doc['exp'],

@@ -57,7 +57,9 @@ const String index = '''
     <title>DartIO</title>
 </head>
 <body>
-    <p>Index principal</p>
+  <Center>
+    <p>Dartion is ready for use.</p>
+  </Center>
 </body>
 </html>
 ''';
