@@ -173,3 +173,10 @@ NOTE: When using Authentication, you will need to have a **users** property in y
 ## Community
 
 For more details, join our [Telegram Group Flutterando](https://t.me/flutterando)
+
+
+
+## TO DO: 1.2.0 
+[   ] Improvements to prepare for Dart 3.0
+[   ] Limit sdk version to 2.19 or up
+[   ] Document 55 public members

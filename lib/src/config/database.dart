@@ -28,13 +28,13 @@ class Database implements IDatabase {
 
   @override
   Future<List> getAll(String query) async {
-    var db = _json;
+    final db = _json;
     return db[query] ?? [];
   }
 
   @override
   Future<Map<String, dynamic>> get(String query, String id) async {
-    var db = await getAll(query);
+    final db = await getAll(query);
     return db.firstWhere((element) => element['id'] == id);
   }
 

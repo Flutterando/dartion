@@ -20,13 +20,22 @@ class Config {
     this.storage,
   });
 
-  factory Config.formYaml(Map doc) {
+  factory Config.fromYaml(Map doc) {
     return Config(
-        name: doc['name'],
-        db: Database(doc['db']),
-        port: doc['port'],
-        statics: doc['statics'] ?? 'public',
-        storage: doc['storage'] == null ? null : Storage.fromYaml(doc['storage']),
-        auth: doc['auth'] == null ? null : AuthService.formYaml(doc['auth']));
+      name: doc['name'],
+      db: Database(doc['db']),
+      port: doc['port'],
+      statics: doc['statics'] ?? 'public',
+      storage: doc['storage'] == null
+          ? null
+          : Storage.fromYaml(
+              doc['storage'],
+            ),
+      auth: doc['auth'] == null
+          ? null
+          : AuthService.fromYaml(
+              doc['auth'],
+            ),
+    );
   }
 }

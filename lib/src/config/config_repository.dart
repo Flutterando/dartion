@@ -23,6 +23,6 @@ db: db.json
 ''');
     }
 
-    return Config.formYaml(doc);
+    return Config.fromYaml(doc);
   }
 }

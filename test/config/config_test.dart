@@ -11,42 +11,44 @@ void main() {
 
   group('Config', () {
     test('get config', () async {
-      var config = await rep.getConfig('config.yaml');
+      final config = await rep.getConfig('/server/config.yaml');
 
       expect(config, isA<Config>());
-      expect(config.name, 'Test');
+      expect(config.name, 'Dartion Server');
       expect(config.port, 3031);
     });
-    test('get db all', () async {
-      var config = await rep.getConfig('config.yaml');
+
+    test('get all from db query', () async {
+      final config = await rep.getConfig('/server/config.yaml');
       await config.db.init();
 
       expect(config.db, isA<IDatabase>());
 
-      var products = await config.db.getAll('products');
+      final products = await config.db.getAll('products');
       expect(products, isA<List>());
     });
 
     test('get db one item', () async {
-      var config = await rep.getConfig('config.yaml');
+      final config = await rep.getConfig('/server/config.yaml');
       await config.db.init();
       expect(config.db, isA<IDatabase>());
 
-      var item = await config.db.get('products', 0);
+      final item = await config.db.get('products', '0');
       expect(item['title'], 'Flutter 2');
     });
 
-    // test('save', () async {
-    //   var config = await rep.getConfig('config.yaml');
+    // test('save item to db', () async {
+    //   final config = await rep.getConfig('config.yaml');
     //   expect(config.db, isA<IDatabase>());
 
-    //   var item = await config.db.get('products', 1);
+    //   final item = await config.db.get('products', '0');
     //   item['title'] = 'Flutter 2';
     //   expect(item['title'], 'Flutter 2');
-    //   await config.db.save();
-    //   var config2 = await rep.getConfig('config.yaml');
-    //   var item2 = await config2.db.get('products', 1);
-    //   expect(item2['title'], 'Flutter 2');
+
+    //   await config.db.save('title', 'Flutter 3');
+    //   final config2 = await rep.getConfig('config.yaml');
+    //   final item2 = await config2.db.get('products', '3');
+    //   expect(item2['title'], 'Flutter 3');
     // });
   });
 }
