@@ -10,7 +10,7 @@ Execute this command in an empty folder:
 dartion init
 ```
 
-This will create the files you can see in the Example folder.
+This will create the files as you can see in the Example folder.
 The `config.yaml` is the file you want to change so you can add your own configurations. 
 
 **Start server**:

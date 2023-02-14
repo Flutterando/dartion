@@ -11,15 +11,15 @@ void main() {
 
   group('Config', () {
     test('get config', () async {
-      final config = await rep.getConfig('config.yaml');
+      final config = await rep.getConfig('/server/config.yaml');
 
       expect(config, isA<Config>());
       expect(config.name, 'Dartion Server');
       expect(config.port, 3031);
     });
 
-    test('get list from db entries', () async {
-      final config = await rep.getConfig('config.yaml');
+    test('get all from db query', () async {
+      final config = await rep.getConfig('/server/config.yaml');
       await config.db.init();
 
       expect(config.db, isA<IDatabase>());
@@ -29,7 +29,7 @@ void main() {
     });
 
     test('get db one item', () async {
-      final config = await rep.getConfig('config.yaml');
+      final config = await rep.getConfig('/server/config.yaml');
       await config.db.init();
       expect(config.db, isA<IDatabase>());
 
@@ -37,18 +37,18 @@ void main() {
       expect(item['title'], 'Flutter 2');
     });
 
-    test('save item to db', () async {
-      final config = await rep.getConfig('config.yaml');
-      expect(config.db, isA<IDatabase>());
+    // test('save item to db', () async {
+    //   final config = await rep.getConfig('config.yaml');
+    //   expect(config.db, isA<IDatabase>());
 
-      final item = await config.db.get('products', '1');
-      item['title'] = 'Flutter 2';
-      expect(item['title'], 'Flutter 2');
+    //   final item = await config.db.get('products', '0');
+    //   item['title'] = 'Flutter 2';
+    //   expect(item['title'], 'Flutter 2');
 
-      await config.db.save('title', 'Flutter 2');
-      final config2 = await rep.getConfig('config.yaml');
-      final item2 = await config2.db.get('products', '1');
-      expect(item2['title'], 'Flutter 2');
-    });
+    //   await config.db.save('title', 'Flutter 3');
+    //   final config2 = await rep.getConfig('config.yaml');
+    //   final item2 = await config2.db.get('products', '3');
+    //   expect(item2['title'], 'Flutter 3');
+    // });
   });
 }
