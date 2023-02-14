@@ -27,3 +27,11 @@ If you start it using the Example folder you can run the Dartion tests for examp
 **Changing data**:
 
 The file `db.json` can be changed to add your own data to your mock server.
+
+**Interacting with the database**:
+
+Use the IDatabase class methods:
+init - to initialize the database
+save - to save an entry to the database
+getAll - get all entries from it
+get - get a single entry

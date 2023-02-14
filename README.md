@@ -1,3 +1,5 @@
+db.json on root folder = Json created by the tests run on tests folder
+
 # Dartion
 
 Dartion is a RESTful mini web server based on JSON.

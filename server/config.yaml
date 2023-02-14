@@ -4,9 +4,10 @@ db: db.json
 statics: public
 host: 0.0.0.0
 
-# auth:
-#   key: dasdrfgdfvkjbkhvjgfigiuhwiodfuhfiyq
-#   exp: 3600
-#   scape:
-#     - animals
-#     - cities
+auth:
+  key: dasdrfgdfvkjbkhvjgfigiuhwiodfuhfiyq
+  exp: 3600
+  aud: test.dd
+  scape:
+    - animals
+    - cities

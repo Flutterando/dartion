@@ -1,3 +1,5 @@
+/// Default template for server configurations created by the
+/// dartion init command
 const String config = '''
 name: Test
 port: 3031
@@ -16,6 +18,7 @@ statics: public/
 #     - file
 ''';
 
+/// Default template for a mock database created by the dartion init command
 const String db = '''
 {
     "users": [
@@ -48,6 +51,8 @@ const String db = '''
     ]
 }
 ''';
+
+/// Default Template for the index.html created by the dartion init command
 const String index = '''
 <!DOCTYPE html>
 <html lang="en">

@@ -17,6 +17,6 @@
             "args": ["init", "example"],
             "request": "launch",
             "type": "dart"
-        }
+        },
     ]
 }
