@@ -31,11 +31,11 @@ class DartIOServer {
 
     _server = await shelf_io.serve(
       handler,
-      InternetAddress.loopbackIPv4,
+      config.host ?? InternetAddress.loopbackIPv4,
       config.port,
     );
     stdout.write('Server ${config.name} started...');
-    stdout.write('Listening on localhost:${_server.port}');
+    stdout.write('Listening on ${_server.address.host}:${_server.port}');
   }
 
   // request should be dynamic so the rule is ignored for this line
@@ -138,28 +138,29 @@ class DartIOServer {
       );
     }
 
+    //@Noslin22 fixes to credentials bug:
     try {
-      //@Noslin22 fixes to credentials bug:
-      var credentials
+      final credentials =
           String.fromCharCodes(base64Decode(token.replaceFirst('Basic ', '')))
               .split(':');
-      var users = await config.db.getAll('users');
-      Map user = users.firstWhere((element) =>
-          element['email'] == credentials[0] &&
-          element['password'] == credentials[1]);
-     
-      int index = user.keys.toList().indexOf("password");
-      
-      List keys = user.keys.toList();
+      final users = await config.db.getAll('users');
+      final Map user = users.firstWhere(
+        (element) =>
+            element['email'] == credentials[0] &&
+            element['password'] == credentials[1],
+      );
+
+      final index = user.keys.toList().indexOf('password');
+
+      final keys = user.keys.toList();
       keys.removeAt(index);
-      List values = user.values.toList();
+      final values = user.values.toList();
       values.removeAt(index);
-      Map newUser = Map.fromIterables(keys, values);
+      final newUser = Map.fromIterables(keys, values);
 
       return Response.ok(
         jsonEncode({
           'user': newUser,
-
           'token': config.auth?.generateToken(user['id']),
           'exp': config.auth?.exp
         }),
@@ -169,8 +170,8 @@ class DartIOServer {
       return Response.forbidden(jsonEncode({'error': 'Forbidden Access'}));
     }
   }
-  //end of @Noslin22 fixes 
-  
+  //end of @Noslin22 fixes
+
   bool middlewareJwt(Request request) {
     if (config.auth == null) {
       return true;

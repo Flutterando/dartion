@@ -10,6 +10,7 @@ class Config {
   final String statics;
   final AuthService? auth;
   final Storage? storage;
+  final String? host;
 
   Config({
     this.name = 'Dartion Server',
@@ -18,6 +19,7 @@ class Config {
     this.statics = 'public',
     this.auth,
     this.storage,
+    this.host,
   });
 
   factory Config.fromYaml(Map doc) {
@@ -36,6 +38,7 @@ class Config {
           : AuthService.fromYaml(
               doc['auth'],
             ),
+      host: doc['host'],
     );
   }
 }
