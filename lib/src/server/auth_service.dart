@@ -16,13 +16,29 @@ class AuthService {
     return AuthService(
       key: doc['key'],
       exp: doc['exp'],
-      aud: doc['aud'] == null ? null : (doc['aud'] as List).map<String>((e) => '$e').toList(),
-      scape: doc['scape'] == null ? [] : (doc['scape'] as List).map<String>((e) => '$e').toList(),
+      aud: doc['aud'] == null
+          ? null
+          : (doc['aud'] as List)
+              .map<String>(
+                (e) => '$e',
+              )
+              .toList(),
+      scape: doc['scape'] == null
+          ? []
+          : (doc['scape'] as List)
+              .map<String>(
+                (e) => '$e',
+              )
+              .toList(),
     );
   }
 
   String generateToken(int id) {
-    final claimSet = JwtClaim(subject: '$id', issuer: 'dartio', maxAge: Duration(seconds: exp));
+    final claimSet = JwtClaim(
+      subject: '$id',
+      issuer: 'dartio',
+      maxAge: Duration(seconds: exp),
+    );
 
     return issueJwtHS256(claimSet, key);
   }

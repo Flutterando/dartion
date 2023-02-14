@@ -11,28 +11,29 @@ void main() {
 
   group('Config', () {
     test('get config', () async {
-      var config = await rep.getConfig('config.yaml');
+      final config = await rep.getConfig('config.yaml');
 
       expect(config, isA<Config>());
       expect(config.name, 'Test');
       expect(config.port, 3031);
     });
+
     test('get db all', () async {
-      var config = await rep.getConfig('config.yaml');
+      final config = await rep.getConfig('config.yaml');
       await config.db.init();
 
       expect(config.db, isA<IDatabase>());
 
-      var products = await config.db.getAll('products');
+      final products = await config.db.getAll('products');
       expect(products, isA<List>());
     });
 
     test('get db one item', () async {
-      var config = await rep.getConfig('config.yaml');
+      final config = await rep.getConfig('config.yaml');
       await config.db.init();
       expect(config.db, isA<IDatabase>());
 
-      var item = await config.db.get('products', 0);
+      final item = await config.db.get('products', '0');
       expect(item['title'], 'Flutter 2');
     });
 
