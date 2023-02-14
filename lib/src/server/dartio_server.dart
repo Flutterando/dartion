@@ -139,21 +139,27 @@ class DartIOServer {
     }
 
     try {
-      final credentials = String.fromCharCodes(
-        base64Decode(token[0].replaceFirst('Basic ', '')),
-      ).split(':');
-      final users = await config.db.getAll('users');
-      final user = users.firstWhere(
-        (element) =>
-            element['email'] == credentials[0] &&
-            element['password'] == credentials[1],
-      );
-
-      (user as Map).remove('password');
+      //@Noslin22 fixes to credentials bug:
+      var credentials
+          String.fromCharCodes(base64Decode(token.replaceFirst('Basic ', '')))
+              .split(':');
+      var users = await config.db.getAll('users');
+      Map user = users.firstWhere((element) =>
+          element['email'] == credentials[0] &&
+          element['password'] == credentials[1]);
+     
+      int index = user.keys.toList().indexOf("password");
+      
+      List keys = user.keys.toList();
+      keys.removeAt(index);
+      List values = user.values.toList();
+      values.removeAt(index);
+      Map newUser = Map.fromIterables(keys, values);
 
       return Response.ok(
         jsonEncode({
-          'user': user,
+          'user': newUser,
+
           'token': config.auth?.generateToken(user['id']),
           'exp': config.auth?.exp
         }),
@@ -163,7 +169,8 @@ class DartIOServer {
       return Response.forbidden(jsonEncode({'error': 'Forbidden Access'}));
     }
   }
-
+  //end of @Noslin22 fixes 
+  
   bool middlewareJwt(Request request) {
     if (config.auth == null) {
       return true;
