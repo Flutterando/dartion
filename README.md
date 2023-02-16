@@ -103,7 +103,7 @@ statics: public
 auth:
   key: dajdi3cdj8jw40jv89cj4uybfg9wh9vcnvb
   exp: 3600
-  scape:
+  escape:
     - animals
     - cities
 ```
@@ -114,7 +114,7 @@ The auth property takes some configuration parameters:
 ```yaml
 key -> To sign your token
 exp -> Token expiration time in seconds
-scape -> List of routes that will not be affected by token protection
+escape -> List of routes that will not be affected by token protection
 ```
 
 2. Login using the **/auth** route:
@@ -177,8 +177,3 @@ NOTE: When using Authentication, you will need to have a **users** property in y
 For more details, join our [Telegram Group Flutterando](https://t.me/flutterando)
 
 
-
-## TO DO: 1.2.0 
-[   ] Improvements to prepare for Dart 3.0
-[   ] Limit sdk version to 2.19 or up
-[   ] Document 55 public members

@@ -5,6 +5,7 @@ import 'package:test/test.dart';
 
 void main() {
   late IConfigRepository rep;
+
   setUp(() {
     rep = ConfigRepository();
   });

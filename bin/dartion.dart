@@ -4,7 +4,7 @@ import 'package:dartion/dartion.dart';
 
 import 'package:dartion/src/templates/templates.dart' as template;
 
-String version = '1.0.5';
+String version = '1.1.0';
 
 void main(List<String> arguments) async {
   final arg = arguments.isEmpty ? '--version' : arguments[0];

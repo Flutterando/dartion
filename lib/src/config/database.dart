@@ -2,10 +2,12 @@ import 'dart:convert' show jsonEncode, jsonDecode;
 import 'dart:io';
 
 /// Interface class for the Database methods. There are 4 methods:
+/// ```none
 /// init - to initialize the database
 /// save - to save an entry to the database
 /// getAll - get all entries from it
 /// get - get a single entry
+/// ```
 abstract class IDatabase {
   /// Starts the database based on the config.yaml settings defined by you.
   Future init();

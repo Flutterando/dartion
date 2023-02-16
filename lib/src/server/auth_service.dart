@@ -1,5 +1,9 @@
 import 'package:jaguar_jwt/jaguar_jwt.dart';
 
+/// This class mimics an Auth Service with tokens. Requires a String key,
+/// an int exp (expected response time), a List<String> aud (defaults to
+/// test.dd in the configuration provided by this package) and another
+/// List<String> of possible escape codes
 class AuthService {
   /// Auth service key
   final String key;
@@ -10,8 +14,15 @@ class AuthService {
 
   /// Auth service aud; Defaults to test.dd in the config.yaml created initially
   final List<String>? aud;
+
+  /// Possible escape codes for use with Authorizations
   final List<String>? scape;
 
+  /// Constructor method for the AuthService class. Requires a String key,
+  /// an int exp (expected response time in seconds), a List<String> aud
+  /// (defaults to test.dd in the configuration provided by this package) and
+  /// another List<String> of routes that will not be affected by
+  /// token protection
   AuthService({
     required this.key,
     required this.exp,
@@ -20,7 +31,17 @@ class AuthService {
   });
 
   ///Factory constructor to build the AuthService through the config.yaml data
-  ///received by a Map parameter
+  ///received by a Map parameter.
+  ///The config.yaml must have a layout like this one:
+  /// ```yaml
+  /// auth:
+  ///   key: dasdrfgdfvkjbkhvjgfigiuhwiodfuhfiyq
+  ///   exp: 3600
+  ///   aud: test.dd
+  ///   scape:
+  ///     - animals
+  ///     - cities
+  /// ```
   factory AuthService.fromYaml(Map doc) {
     return AuthService(
       key: doc['key'],
