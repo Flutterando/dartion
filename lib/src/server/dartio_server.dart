@@ -2,54 +2,79 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:path/path.dart';
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
+import 'package:shelf_multipart/form_data.dart';
 import 'package:shelf_static/shelf_static.dart';
-import 'package:path/path.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../dartion.dart';
-import '../config/config_model.dart';
-import 'package:shelf_multipart/form_data.dart';
 
+/// Class that defines the configuration and http server instance
 class DartIOServer {
+  /// Config class - defines database configuration
   final Config config;
-  late HttpServer _server;
-  var uuid = Uuid();
 
+  /// Http Server object from Dart:html. This object class implements a
+  /// Stream<HttpRequest>, so treat it accordingly
+  late HttpServer _server;
+
+  /// Uuid object from the package Uuid
+  Uuid uuid = const Uuid();
+
+  /// DartIoServer construtor class. Requires a config.yaml file.
   DartIOServer({required this.config});
 
+  /// Getter that uses the config.yaml data to return a DartIOServer instance
   static Future<DartIOServer> getInstance() async {
     return DartIOServer(
       config: await ConfigRepository().getConfig('config.yaml'),
     );
   }
 
+  ///Initiates the server using the config.db.init, creating a handler
+  ///(middleware) for the requests and starting a shelf server on the localhost
   Future start() async {
     await config.db.init();
-    var handler = const Pipeline().addMiddleware(logRequests()).addHandler(handleRequest);
+    final handler =
+        const Pipeline().addMiddleware(logRequests()).addHandler(handleRequest);
 
-    _server = await shelf_io.serve(handler, InternetAddress.loopbackIPv4, config.port);
-    print('Server ${config.name} started...');
-    print('Listening on localhost:${_server.port}');
+    _server = await shelf_io.serve(
+      handler,
+      config.host ?? InternetAddress.loopbackIPv4,
+      config.port,
+    );
+    stdout.write('Server ${config.name} started...');
+    stdout.write('Listening on ${_server.address.host}:${_server.port}');
   }
 
-  bool checkFile(request) {
+  ///Method for checking a file. Uses the parameter request, but it's **NOT** a
+  ///Shelf package request. It uses a dynamic parameter to get a
+  ///uri.pathSegments
+  bool checkFile(dynamic request) {
     if (request.uri.pathSegments.length >= 2) {
-      return request.uri.pathSegments[request.uri.pathSegments.length - 2] == 'file' && config.storage != null;
+      return request.uri.pathSegments[request.uri.pathSegments.length - 2] ==
+              'file' &&
+          config.storage != null;
     }
-
     return false;
   }
 
+  /// Main method to handle the Requests. Requires a http Request (from the
+  /// Shelf package) and based on the method requested calls the appropriate
+  /// function.
   FutureOr<Response> handleRequest(Request request) {
     try {
-      var mimeType = request.mimeType;
+      final mimeType = request.mimeType;
       final method = request.method.toUpperCase();
 
       if (method == 'GET') {
         if (request.url.pathSegments.last == config.statics) {
-          return createStaticHandler(config.statics, defaultDocument: 'index.html')(request);
+          return createStaticHandler(
+            config.statics,
+            defaultDocument: 'index.html',
+          )(request);
         } else if (request.url.pathSegments.last == config.storage?.folder) {
           return createStaticHandler(config.storage!.folder)(request);
         } else if (request.url.pathSegments.last == 'auth') {
@@ -61,7 +86,10 @@ class DartIOServer {
         return handleDelete(request);
       } else if (method == 'POST' && mimeType == 'application/json') {
         return handlePost(request);
-      } else if (method == 'POST' && mimeType == 'multipart/form-data' && request.url.pathSegments.last == 'storage' && config.storage != null) {
+      } else if (method == 'POST' &&
+          mimeType == 'multipart/form-data' &&
+          request.url.pathSegments.last == 'storage' &&
+          config.storage != null) {
         return handleUpload(request);
       } else if (method == 'PUT' && mimeType == 'application/json') {
         return handlePut(request);
@@ -81,8 +109,10 @@ class DartIOServer {
     }
   }
 
-  String get getSlash => Platform.isWindows ? '\\' : '/';
+  ///Getter used to change "\" to "/" in paths if Windows is the platform.
+  String get getSlash => Platform.isWindows ? r'\' : '/';
 
+  /// Handles Uploads. Requires a http Request (from the Shelf package).
   Future<Response> handleUpload(Request request) async {
     if (!middlewareJwt(request)) {
       return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
@@ -91,63 +121,95 @@ class DartIOServer {
     if (!request.isMultipartForm) {
       return Response(401); // not a multipart request
     }
-    await for (final formData in request.multipartFormData.where((event) => event.name == config.storage?.name)) {
-      var dir = Directory(config.storage!.folder);
-      var name = "${dir.path}storage_${DateTime.now().millisecondsSinceEpoch}.${formData.filename?.split('.').last}";
+    await for (final formData in request.multipartFormData
+        .where((event) => event.name == config.storage?.name)) {
+      final dir = Directory(config.storage!.folder);
+      final name = '${dir.path}storage_${DateTime.now().millisecondsSinceEpoch}'
+          '.${formData.filename?.split('.').last}';
       final file = File(name);
       if (!file.existsSync()) {
         file.createSync(recursive: true);
       }
-      await file.writeAsBytes(await formData.part.readBytes(), mode: FileMode.writeOnly);
-      return Response.ok(jsonEncode({
-        'url': basename(file.path),
-      }));
+      await file.writeAsBytes(
+        await formData.part.readBytes(),
+        mode: FileMode.writeOnly,
+      );
+      return Response.ok(
+        jsonEncode({
+          'url': basename(file.path),
+        }),
+      );
     }
 
     return Response.internalServerError();
   }
 
+  /// Handles Authorizations. Requires a http Request (from the Shelf package).
+  /// The user must use an email and a password, and if the response is ok it
+  /// returns an user, a token and an exp fields.
   Future<Response> handleAuth(Request request) async {
-    var token = request.headers[HttpHeaders.authorizationHeader];
+    final token = request.headers[HttpHeaders.authorizationHeader];
     if (token == null) {
-      return Response.forbidden(jsonEncode({
-        'error': 'Not found token Basic',
-      }));
+      return Response.forbidden(
+        jsonEncode({
+          'error': 'Basic token not found.',
+        }),
+      );
     }
 
+    //@Noslin22 fixes to credentials bug:
     try {
-      var credentials = String.fromCharCodes(base64Decode(token[0].replaceFirst('Basic ', ''))).split(':');
-      var users = await config.db.getAll('users');
-      var user = users.firstWhere((element) => element['email'] == credentials[0] && element['password'] == credentials[1]);
+      final credentials =
+          String.fromCharCodes(base64Decode(token.replaceFirst('Basic ', '')))
+              .split(':');
+      final users = await config.db.getAll('users');
+      final Map user = users.firstWhere(
+        (element) =>
+            element['email'] == credentials[0] &&
+            element['password'] == credentials[1],
+      );
 
-      (user as Map).remove('password');
+      final index = user.keys.toList().indexOf('password');
+
+      final keys = user.keys.toList();
+      keys.removeAt(index);
+      final values = user.values.toList();
+      values.removeAt(index);
+      final newUser = Map.fromIterables(keys, values);
 
       return Response.ok(
-        jsonEncode({'user': user, 'token': config.auth?.generateToken(user['id']), 'exp': config.auth?.exp}),
+        jsonEncode({
+          'user': newUser,
+          'token': config.auth?.generateToken(user['id']),
+          'exp': config.auth?.exp
+        }),
         headers: {'content-type': 'application/json'},
       );
     } catch (e) {
       return Response.forbidden(jsonEncode({'error': 'Forbidden Access'}));
     }
   }
+  //end of @Noslin22 fixes
 
+  /// Contains the logic used to validate a Jason Web Token
   bool middlewareJwt(Request request) {
     if (config.auth == null) {
       return true;
     }
 
-    if (request.url.pathSegments.isEmpty || config.auth?.scape?.contains(request.url.pathSegments[0]) == true) {
+    if (request.url.pathSegments.isEmpty ||
+        config.auth?.scape?.contains(request.url.pathSegments[0]) == true) {
       return true;
     }
 
-    var header = request.headers[HttpHeaders.authorizationHeader];
+    final header = request.headers[HttpHeaders.authorizationHeader];
     if (header == null) {
       return false;
     }
 
-    var token = header[0].replaceFirst('Bearer ', '');
+    final token = header[0].replaceFirst('Bearer ', '');
 
-    var valid = config.auth?.isValid(token, request.url.pathSegments[0]);
+    final valid = config.auth?.isValid(token, request.url.pathSegments[0]);
 
     if (valid != null) {
       return false;
@@ -156,41 +218,51 @@ class DartIOServer {
     return true;
   }
 
+  /// Gets a segment of the requested url. Requires a http Request (from the
+  /// Shelf package).
   Future<dynamic> getSegment(Request request) async {
     if (request.url.pathSegments.length > 1) {
-      return config.db.get(request.url.pathSegments.first, request.url.pathSegments[1]);
+      return config.db
+          .get(request.url.pathSegments.first, request.url.pathSegments[1]);
     } else {
       return config.db.getAll(request.url.pathSegments[0]);
     }
   }
 
+  /// Handles Get http requisitions. Requires a http Request (from the Shelf
+  /// package).
   Future<Response> handleGet(Request request) async {
     if (!middlewareJwt(request)) {
       return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
     }
 
     try {
-      dynamic seg = await getSegment(request);
+      final dynamic seg = await getSegment(request);
 
       if (seg == null) {
         return Response.notFound(jsonEncode({'error': 'Not found'}));
       } else {
-        return Response.ok(jsonEncode(seg), headers: {'content-type': 'application/json'});
+        return Response.ok(
+          jsonEncode(seg),
+          headers: {'content-type': 'application/json'},
+        );
       }
     } catch (e) {
       return Response.notFound(jsonEncode({'error': 'Internal Error. $e'}));
     }
   }
 
+  /// Handles Post http requisitions. Requires a http Request (from the Shelf
+  /// package).
   Future<Response> handlePost(Request request) async {
     if (!middlewareJwt(request)) {
       return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
     }
     try {
-      var content = await request.readAsString(); /*2*/
-      var data = jsonDecode(content) as Map;
+      final content = await request.readAsString(); /*2*/
+      final data = jsonDecode(content) as Map;
       final key = request.url.pathSegments[0];
-      dynamic seg = await config.db.getAll(request.url.pathSegments[0]);
+      final dynamic seg = await config.db.getAll(request.url.pathSegments[0]);
 
       if (seg == null) {
         return Response.notFound(jsonEncode({'error': 'Not found'}));
@@ -198,46 +270,58 @@ class DartIOServer {
         data['id'] = uuid.v1();
         seg.add(data);
         await config.db.save(key, seg);
-        return Response.ok(jsonEncode(data), headers: {'content-type': 'application/json'});
+        return Response.ok(
+          jsonEncode(data),
+          headers: {'content-type': 'application/json'},
+        );
       }
     } catch (e) {
       return Response.notFound(jsonEncode({'error': 'Internal Error. $e'}));
     }
   }
 
+  /// Handles Put http requisitions. Requires a http Request (from the Shelf
+  /// package).
   Future<Response> handlePut(Request request) async {
     if (!middlewareJwt(request)) {
       return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
     }
     try {
-      var content = await request.readAsString(); /*2*/
-      var data = jsonDecode(content) as Map;
+      final content = await request.readAsString(); /*2*/
+      final data = jsonDecode(content) as Map;
       final key = request.url.pathSegments[0];
-      dynamic seg = await config.db.getAll(key);
+      final dynamic seg = await config.db.getAll(key);
 
       if (seg == null) {
         return Response.notFound(jsonEncode({'error': 'Not found'}));
       } else {
         data['id'] = request.url.pathSegments[1];
-        var position = (seg as List).indexWhere((element) => element['id'] == request.url.pathSegments[1]);
+        final position = (seg as List).indexWhere(
+          (element) => element['id'] == request.url.pathSegments[1],
+        );
         data.forEach((key, value) {
           seg[position][key] = value;
         });
         await config.db.save(key, seg);
-        return Response.ok(jsonEncode(data), headers: {'content-type': 'application/json'});
+        return Response.ok(
+          jsonEncode(data),
+          headers: {'content-type': 'application/json'},
+        );
       }
     } catch (e) {
       return Response.notFound(jsonEncode({'error': 'Internal Error. $e'}));
     }
   }
 
+  /// Handles Delete http requisitions. Requires a http Request (from the Shelf
+  /// package).
   Future<Response> handleDelete(Request request) async {
     if (!middlewareJwt(request)) {
       return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
     }
     try {
       final key = request.url.pathSegments[0];
-      dynamic seg = await config.db.getAll(key);
+      final dynamic seg = await config.db.getAll(key);
 
       if (seg == null) {
         return Response.notFound(jsonEncode({'error': 'Not found'}));
@@ -246,40 +330,53 @@ class DartIOServer {
           (element) => element['id'] == request.url.pathSegments[1],
         );
         await config.db.save(key, seg);
-        return Response.ok(jsonEncode({'data': 'ok!'}), headers: {'content-type': 'application/json'});
+        return Response.ok(
+          jsonEncode({'data': 'ok!'}),
+          headers: {'content-type': 'application/json'},
+        );
       }
     } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Internal Error'}));
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Internal Error'}),
+      );
     }
   }
 
+  /// Handles Patch http requisitions. Requires a http Request (from the Shelf
+  /// package).
   Future<Response> handlePatch(Request request) async {
     if (!middlewareJwt(request)) {
       return Response.forbidden(jsonEncode({'error': 'middlewareJwt'}));
     }
 
     try {
-      var content = await request.readAsString(); /*2*/
-      var data = jsonDecode(content) as Map;
+      final content = await request.readAsString(); /*2*/
+      final data = jsonDecode(content) as Map;
       final key = request.url.pathSegments[0];
-
-      dynamic seg = await config.db.getAll(key);
+      final dynamic seg = await config.db.getAll(key);
 
       if (seg == null) {
         return Response.notFound(jsonEncode({'error': 'Not found'}));
       } else {
         data['id'] = int.parse(request.url.pathSegments[1]);
-        var position = (seg as List).indexWhere((element) => element['id'] == int.parse(request.url.pathSegments[1]));
+        final position = (seg as List).indexWhere(
+          (element) => element['id'] == int.parse(request.url.pathSegments[1]),
+        );
 
         data.forEach((key, value) {
           seg[position][key] = value;
         });
 
         await config.db.save(key, seg);
-        return Response.ok(jsonEncode(data), headers: {'content-type': 'application/json'});
+        return Response.ok(
+          jsonEncode(data),
+          headers: {'content-type': 'application/json'},
+        );
       }
     } catch (e) {
-      return Response.internalServerError(body: jsonEncode({'error': 'Internal Error'}));
+      return Response.internalServerError(
+        body: jsonEncode({'error': 'Internal Error'}),
+      );
     }
   }
 }

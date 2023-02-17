@@ -4,10 +4,16 @@ import 'package:yaml/yaml.dart';
 
 import 'config_model.dart';
 
+/// Interface class to configure the database server through the yaml file
+/// defined in it's method getConfig parameter path (String)
 abstract class IConfigRepository {
+  /// Gets the database configuration through the yaml file defined in it's
+  /// parameter path (String)
   Future<Config> getConfig(String path);
 }
 
+/// Class used to configure the database server through the yaml file
+/// defined in it's method getConfig parameter path (String)
 class ConfigRepository implements IConfigRepository {
   @override
   Future<Config> getConfig(String path) async {
@@ -20,9 +26,10 @@ class ConfigRepository implements IConfigRepository {
 name: Dartion Server
 port: 3031
 db: db.json
+host: 0.0.0.0
 ''');
     }
 
-    return Config.formYaml(doc);
+    return Config.fromYaml(doc);
   }
 }

@@ -1,15 +1,1 @@
-{
-    "products": [
-        {
-            "title": "Flutter 2",
-            "id": "033b12f0-4de7-11ec-8062-e18f2466c74d"
-        }
-    ],
-    "todos": [
-        {
-            "name": "Fazer aula de flutter",
-            "checked": true,
-            "id": "00946780-4de8-11ec-a677-314bfbf3edd9"
-        }
-    ]
-}
+{"users":[{"name":"Robert","email":"robert@gmail.com","password":"123"},{"name":"Calls","email":"calls@gmail.com","password":"1234"}],"products":[{"id":0,"title":"Flutter 2"},{"id":1,"title":"React Native"},{"title":"Ionic","id":2},{"id":3,"title":"Flutter 3"},{"id":3,"title":"Flutter 3"}],"cities":[{"name":"Manaus","id":0},{"name":"Fortaleza","id":1},{"name":"Maringá","id":2},{"name":"São Paulo","id":3}],"animals":[{"name":"Cachorro","id":0},{"name":"Gato","id":1},{"name":"Pato","id":2},{"name":"Galo","id":3}]}
