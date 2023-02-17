@@ -7,7 +7,7 @@
 <br />
 <div align="center">
   <a href="https://pub.dev/packages/dartion">
-    <img src="readme_assets/logo-dartion.png" alt="Dartion package Logo" width="180">
+    <img src="https://raw.githubusercontent.com/Flutterando/dartion/master/readme_assets/logo-dartion.png" alt="Dartion package Logo" width="180">
   </a>
 
   <p align="center">
