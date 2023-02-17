@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the handleRequest method from the DartIOServer class, for the Dart programming language.">
+  <title>handleRequest method - DartIOServer class - dartion library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">dartion</a></li>
+    <li><a href="../../dartion/dartion-library.html">dartion</a></li>
+    <li><a href="../../dartion/DartIOServer-class.html">DartIOServer</a></li>
+    <li class="self-crumb">handleRequest method</li>
+  </ol>
+  <div class="self-name">handleRequest</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span class="material-symbols-outlined">
+        brightness_4
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+  <div id="dartdoc-main-content" class="main-content">
+      <div>
+<h1><span class="kind-method">handleRequest</span> method 
+    <a href="https://dart.dev/null-safety" class="feature feature-null-safety" title="Supports the null safety language feature.">Null safety</a>
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+
+<span class="returntype"><a href="https://api.dart.dev/stable/2.19.2/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/shelf/1.4.0/shelf/Response-class.html">Response</a></span>&gt;</span></span>
+<span class="name ">handleRequest</span>(<wbr><ol class="parameter-list"><li><span class="parameter" id="handleRequest-param-request"><span class="type-annotation"><a href="https://pub.dev/documentation/shelf/1.4.0/shelf/Request-class.html">Request</a></span> <span class="parameter-name">request</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Main method to handle the Requests. Requires a http Request (from the
+Shelf package) and based on the method requested calls the appropriate
+function.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">FutureOr&lt;Response&gt; handleRequest(Request request) {
+  try {
+    final mimeType = request.mimeType;
+    final method = request.method.toUpperCase();
+
+    if (method == &#39;GET&#39;) {
+      if (request.url.pathSegments.last == config.statics) {
+        return createStaticHandler(
+          config.statics,
+          defaultDocument: &#39;index.html&#39;,
+        )(request);
+      } else if (request.url.pathSegments.last == config.storage?.folder) {
+        return createStaticHandler(config.storage!.folder)(request);
+      } else if (request.url.pathSegments.last == &#39;auth&#39;) {
+        return handleAuth(request);
+      } else {
+        return handleGet(request);
+      }
+    } else if (method == &#39;DELETE&#39;) {
+      return handleDelete(request);
+    } else if (method == &#39;POST&#39; &amp;&amp; mimeType == &#39;application&#47;json&#39;) {
+      return handlePost(request);
+    } else if (method == &#39;POST&#39; &amp;&amp;
+        mimeType == &#39;multipart&#47;form-data&#39; &amp;&amp;
+        request.url.pathSegments.last == &#39;storage&#39; &amp;&amp;
+        config.storage != null) {
+      return handleUpload(request);
+    } else if (method == &#39;PUT&#39; &amp;&amp; mimeType == &#39;application&#47;json&#39;) {
+      return handlePut(request);
+    } else if (method == &#39;PATCH&#39; &amp;&amp; mimeType == &#39;application&#47;json&#39;) {
+      return handlePatch(request);
+    } else {
+      final body = jsonEncode({
+        &#39;error&#39;: &#39;Unsupported request: ${request.method}.&#39;,
+      });
+      return Response(HttpStatus.methodNotAllowed, body: body);
+    }
+  } catch (e) {
+    final body = jsonEncode({
+      &#39;error&#39;: &#39;Exception: $e.&#39;,
+    });
+    return Response(HttpStatus.internalServerError, body: body);
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="../../index.html">dartion</a></li>
+  <li><a href="../../dartion/dartion-library.html">dartion</a></li>
+  <li><a href="../../dartion/DartIOServer-class.html">DartIOServer</a></li>
+  <li class="self-crumb">handleRequest method</li>
+</ol>
+
+
+    <h5>DartIOServer class</h5>
+    <ol>
+
+        <li class="section-title"><a href="../../dartion/DartIOServer-class.html#constructors">Constructors</a></li>
+          <li><a href="../../dartion/DartIOServer/DartIOServer.html">DartIOServer</a></li>
+
+
+        <li class="section-title">
+          <a href="../../dartion/DartIOServer-class.html#instance-properties">Properties</a>
+        </li>
+          <li><a href="../../dartion/DartIOServer/config.html">config</a></li>
+          <li><a href="../../dartion/DartIOServer/getSlash.html">getSlash</a></li>
+          <li class="inherited"><a href="https://api.dart.dev/stable/2.19.2/dart-core/Object/hashCode.html">hashCode</a></li>
+          <li class="inherited"><a href="https://api.dart.dev/stable/2.19.2/dart-core/Object/runtimeType.html">runtimeType</a></li>
+          <li><a href="../../dartion/DartIOServer/uuid.html">uuid</a></li>
+
+        <li class="section-title"><a href="../../dartion/DartIOServer-class.html#instance-methods">Methods</a></li>
+          <li><a href="../../dartion/DartIOServer/checkFile.html">checkFile</a></li>
+          <li><a href="../../dartion/DartIOServer/getSegment.html">getSegment</a></li>
+          <li><a href="../../dartion/DartIOServer/handleAuth.html">handleAuth</a></li>
+          <li><a href="../../dartion/DartIOServer/handleDelete.html">handleDelete</a></li>
+          <li><a href="../../dartion/DartIOServer/handleGet.html">handleGet</a></li>
+          <li><a href="../../dartion/DartIOServer/handlePatch.html">handlePatch</a></li>
+          <li><a href="../../dartion/DartIOServer/handlePost.html">handlePost</a></li>
+          <li><a href="../../dartion/DartIOServer/handlePut.html">handlePut</a></li>
+          <li><a href="../../dartion/DartIOServer/handleRequest.html">handleRequest</a></li>
+          <li><a href="../../dartion/DartIOServer/handleUpload.html">handleUpload</a></li>
+          <li><a href="../../dartion/DartIOServer/middlewareJwt.html">middlewareJwt</a></li>
+          <li class="inherited"><a href="https://api.dart.dev/stable/2.19.2/dart-core/Object/noSuchMethod.html">noSuchMethod</a></li>
+          <li><a href="../../dartion/DartIOServer/start.html">start</a></li>
+          <li class="inherited"><a href="https://api.dart.dev/stable/2.19.2/dart-core/Object/toString.html">toString</a></li>
+
+        <li class="section-title inherited"><a href="../../dartion/DartIOServer-class.html#operators">Operators</a></li>
+          <li class="inherited"><a href="https://api.dart.dev/stable/2.19.2/dart-core/Object/operator_equals.html">operator ==</a></li>
+
+
+
+        <li class="section-title"><a href="../../dartion/DartIOServer-class.html#static-methods">Static methods</a></li>
+          <li><a href="../../dartion/DartIOServer/getInstance.html">getInstance</a></li>
+
+</ol>
+
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+</main>
+
+<footer>
+  <span class="no-break">
+    dartion
+      1.1.0
+  </span>
+
+  
+</footer>
+
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+

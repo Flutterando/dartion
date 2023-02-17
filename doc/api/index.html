@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="generator" content="made with love by dartdoc 6.1.5">
+  <meta name="description" content="dartion API docs, for the Dart programming language.">
+  <title>dartion - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+
+  
+</head>
+
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+
+<div id="overlay-under-drawer"></div>
+
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://github.com/Flutterando/dartion">dartion package</a></li>
+  </ol>
+  <div class="self-name">dartion</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span class="material-symbols-outlined">
+        brightness_4
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <p><a name="readme-top"></a></p><h1 align="center">DARTION</h1>
+<!-- PROJECT LOGO -->
+<div align="center">
+<a href="https://pub.dev/packages/dartion">
+<img src="readme_assets/logo-dartion.png" alt="Dartion package Logo" width="180">
+</a>
+<p align="center">
+A RESTful mini web server based on JSON.
+<br>
+This is not just a port of the popular json-server for Dart, it also adds some more features like JWT Authentication.
+<br>
+<a href="https://pub.dev/documentation/dartion/latest/"><strong>Explore the docs »</strong></a>
+<br>
+<br>
+<!-- <a href="https://link para o demo">View Demo</a> -->
+·
+<a href="https://github.com/flutterando/dartion/issues">Report Bug</a>
+·
+<a href="https://github.com/flutterando/dartion/issues">Request Feature</a>
+</p>
+<br>
+<!--  SHIELDS  ---->
+<p><a href="https://pub.dev/packages/dartion"><img src="https://img.shields.io/github/v/release/flutterando/dartion?style=plastic" alt="Version"></a>
+<a href="https://pub.dev/packages/dartion/score"><img src="https://img.shields.io/pub/points/dartion?label=pub%20points&amp;style=plastic" alt="Pub Points"></a>
+<a href="https://pub.dev/packages/flutterando_analysis/"><img src="https://img.shields.io/badge/style-flutterando__analysis-blueviolet?style=plastic" alt="Flutterando Analysis"></a></p>
+<p><a href="https://pub.dev/publishers/flutterando.com.br/packages"><img src="https://img.shields.io/pub/publisher/dartion?style=plastic" alt="Pub Publisher"></a></p></div><br>
+<!-- TABLE OF CONTENTS -->
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#about-the-project">About The Project</a></li>
+    <li><a href="#sponsors">Sponsors</a></li>
+    <li><a href="#getting-started">Getting Started</a></li>
+    <li><a href="#how-to-use">How to Use</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgements">Acknowledgements</a></li>
+  </ol>
+
+<br>
+<!-- ABOUT THE PROJECT -->
+<h2 id="about-the-project">About The Project</h2>
+<p>Get your backend up in 5 seconds!
+Dartion aims to make it easier for those who take front-end video lessons in languages like Flutter and need a server to implement and test their codes.
+Just get the DartSDK, install Dartion, initialize the server and start it, that's all!
+It comes with support to HTTP requests and JWT Authentication.<br>
+After installing, just populate the db.json file and you will have a simple and ready to use database.</p><!-- PROJECT EXAMPLE (IMAGE) -->
+<center>
+<img src="readme_assets/project-readme-example.gif" alt="Dartion package working gif" width="400">
+</center> --&gt;
+<br>
+<p><i> This project is distributed under the MIT License. See <code>LICENSE.txt</code> for more information.</i></p><p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- SPONSORS -->
+<h2 id="sponsors">Sponsors</h2><a href="https://fteam.dev">
+    <img src="https://raw.githubusercontent.com/Flutterando/flutterando-readme-template/master/readme_assets/sponsor-logo.png" alt="Logo" width="120">
+  </a>
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<br><!-- GETTING STARTED -->
+<h2 id="getting-started">Getting Started</h2>
+<ol>
+<li>
+<p>Get the <a href="https://dart.dev/get-dart">Dart SDK</a></p>
+</li>
+<li>
+<p>Activate Dartion using pub:</p>
+</li>
+</ol>
+<pre class="language-dart"><code> dart pub global activate dartion
+</code></pre><br> 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<h2 id="how-to-use">How to Use</h2><br>
+<h3 id="commands"><strong>Commands</strong></h3><br>
+<p><strong>Upgrade</strong>:</p>
+<p>Updates Dartion's version:</p>
+<pre class="language-dart"><code>dartion upgrade
+</code></pre><br>
+<p><strong>Init server</strong>:</p>
+<p>Execute the command below in an empty folder, it will create the base configuration files for your server:</p>
+<pre class="language-dart"><code>dartion init
+</code></pre><br>
+<p><strong>Start server</strong>:</p>
+<p>The command below will boot the server based on the settings configured in the <code>config.yaml</code> you have now on your created folder.</p>
+<pre class="language-dart"><code>dartion serve
+</code></pre>
+<p>If you want to change those settings, you can edit the <code>config.yaml</code> as you like. Refer to the documentation on the init and serve commands, and also the Database class, to know a little bit more about these configurations.</p><br>
+<h3 id="route-system"><strong>Route system</strong></h3>
+<p>When running Dartion we have a structure based on RESTful, while the data persists in a JSON file in the folder, named by default <code>db.json</code>.</p>
+<pre class="language-dart"><code>GET    /products     -&gt; Get all products
+GET    /products/1   -&gt; Get one product
+POST   /products     -&gt; Add more one product
+PUT    /products/1   -&gt; Edit one product
+PATCH  /products/1   -&gt; Edit one product
+DELETE /products/1   -&gt; Delete one product
+</code></pre>
+<p>POST, PUT and PATH requests must have their <strong>body</strong> as JSON. It is not necessary to pass the ID, it is incremented automatically.</p><br>
+<h3 id="file-upload"><strong>File Upload</strong></h3>
+<p>You can configure Dartion to accept upload files such as images, pdf's, etc...
+Adds <strong>storage</strong> properties to config.yaml</p>
+<pre class="language-yaml"><code class="language-yaml">storage:
+  name: "file"
+  folder: storage/
+</code></pre>
+<p>File uploads work with "Multipart-form", so you can use the name property to <strong>name</strong> your upload.
+We can choose which folder the uploaded files will be on the server using the <strong>folder</strong> property.
+Then you will have two reserved routes, one to upload files and the other to retrieve those binaries.</p>
+<pre class="language-dart"><code>POST /storage               -&gt; Send files in Multipart-form
+GET  /file/:your-file.ext   -&gt; Retrieve file 
+</code></pre>
+<p>NOTE: The <strong>/storage</strong> route returns the file name.</p><br>
+<h3 id="authetication"><strong>Authetication</strong></h3>
+<p>You can use JWT Authentication in two steps.</p>
+<ol>
+<li>Use the <strong>auth</strong> property in your <code>config.yaml</code></li>
+</ol>
+<pre class="language-yaml"><code class="language-yaml">name: Test
+port: 3031
+db: db.json
+statics: public
+
+auth:
+  key: dajdi3cdj8jw40jv89cj4uybfg9wh9vcnvb
+  exp: 3600
+  escape:
+    - animals
+    - cities
+</code></pre>
+<p>That's enough to protect your routes.
+The auth property takes some configuration parameters:</p>
+<pre class="language-yaml"><code class="language-yaml">key -&gt; To sign your token
+exp -&gt; Token expiration time in seconds
+escape -&gt; List of routes that will not be affected by token protection
+</code></pre>
+<ol start="2">
+<li>Login using the <strong>/auth</strong> route:</li>
+</ol>
+<p>To retrieve the token you need a credential.
+A credential is basically <strong>base64(email:password)</strong></p>
+<p>See an example in Dart:</p>
+<pre class="language-dart"><code class="language-dart">
+String email = "jose@gmail.com";
+String password = "123";
+String info = "$email:$password";
+String encode = base64Encode(info.codeUnits);
+
+String credencials = "Basic $encode";
+
+</code></pre>
+<p>You can now make a GET request to <strong>/auth</strong>, passing the <strong>credentials</strong> in the <code>authorization</code> header.</p>
+<p>exemple in dart</p>
+<pre class="language-dart"><code class="language-dart">// Using the package http
+
+Response response = await http.get(
+  'http://localhost:3031/auth',
+  headers: {'authorization': credencials},
+);
+</code></pre>
+<p>This will return the token and some user information.</p>
+<pre class="language-json"><code class="language-json">{
+  "user": {
+    "name": "Jose",
+    "email": "jose@gmail.com"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1ODc5NjQ1MTAsImlhdCI6MTU4Nzk2MDkxMCwiaXNzIjoiZGFydGlvIiwic3ViIjoibnVsbCJ9.5AeEIpYeu04fKINg6e8Ic5fpT0-KyZH8yPLOO6HoLVA",
+  "exp": 3600
+}
+</code></pre>
+<p>That's it! Now, just use the token to access the routes:</p>
+<pre class="language-dart"><code class="language-dart">Response response = await http.get(
+  'http://localhost:3031/products',
+  headers: {'authorization': "Bearer $token"},
+);
+</code></pre>
+<h4 id="note">NOTE:</h4>
+<p>When using Authentication, you will need to have a <strong>users</strong> property in your <strong>db.json</strong> with a user list containing at least <strong>email</strong> and <strong>password</strong> in order to access.</p>
+<h4 id="note-2">NOTE 2:</h4>
+<p>The db.json on the root folder of this package was generated by running the tests contained on the <code>test</code> folder.</p><br>
+<p><em>For more details, please refer to the</em> <a href="https://pub.dev/documentation/dartion/latest/">Documentation</a></p><p align="right">(<a href="#readme-top">back to top</a>)</p><!-- FEATURES -->
+<h2 id="features">Features</h2>
+<ul>
+<li>✅ Easy to install and use backend mock server</li>
+<li>✅ Database personalization through db.json</li>
+<li>✅ HTTP request handlers</li>
+<li>✅ AuthService mock</li>
+<li>✅</li>
+</ul>
+<p>Right now this package has concluded all his intended features. If you have any suggestions or find something to report, see below how to contribute to it.</p><p align="right">(<a href="#readme-top">back to top</a>)</p><!-- CONTRIBUTING -->
+<h2 id="contributing">Contributing</h2>
+<p>Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are <strong>greatly appreciated</strong>.</p>
+<p>If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the appropriate tag.
+Don't forget to give the project a star! Thanks again!</p>
+<ol>
+<li>Fork the Project</li>
+<li>Create your Feature Branch (<code>git checkout -b feature/AmazingFeature</code>)</li>
+<li>Commit your Changes (<code>git commit -m 'Add some AmazingFeature'</code>)</li>
+<li>Push to the Branch (<code>git push origin feature/AmazingFeature</code>)</li>
+<li>Open a Pull Request</li>
+</ol>
+<p>Remember to include a tag, and to follow <a href="https://www.conventionalcommits.org/en/v1.0.0/">Conventional Commits</a> and <a href="https://semver.org/">Semantic Versioning</a> when uploading your commit and/or creating the issue.</p><p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- CONTACT -->
+<h2 id="contact">Contact</h2>
+<p>Flutterando Community</p>
+<ul>
+<li><a href="https://discord.gg/qNBDHNARja">Discord</a></li>
+<li><a href="https://t.me/flutterando">Telegram</a></li>
+<li><a href="https://www.flutterando.com.br">Website</a></li>
+<li><a href="https://www.youtube.com.br/flutterando">Youtube Channel</a></li>
+<li><a href="https://linktr.ee/flutterando">Other useful links</a></li>
+</ul><p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- ACKNOWLEDGEMENTS -->
+<h2 id="acknowledgements">Acknowledgements</h2>
+<p>Thank you to all the people who contributed to this project, whitout you this project would not be here today.</p><a href="https://github.com/flutterando/dartion/graphs/contributors">
+<img src="https://contrib.rocks/image?repo=flutterando/dartion">
+</a>
+<!-- Bot para Lista de contribuidores - https://allcontributors.org/  -->
+<!-- Opção (utilizada no momento): https://contrib.rocks/preview?repo=flutterando%2Fasuka --><p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- MANTAINED BY -->
+<h2 id="maintaned-by">Maintaned by</h2><br>
+<p align="center">
+  <a href="https://www.flutterando.com.br">
+    <img width="110px" src="https://raw.githubusercontent.com/Flutterando/flutterando-readme-template/master/readme_assets/logo-flutterando.png">
+  </a>
+  </p><p align="center">
+    Built and maintained by <a href="https://www.flutterando.com.br">Flutterando</a>.
+  </p>
+<p></p>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="dartion">
+  <span class="name"><a href="dartion/dartion-library.html">dartion</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+        </dl>
+      </section>
+
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+  <li><a href="https://github.com/Flutterando/dartion">dartion package</a></li>
+</ol>
+
+
+    <h5 class="hidden-xs"><span class="package-name">dartion</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="dartion/dartion-library.html">dartion</a></li>
+</ol>
+
+  </div>
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+
+</main>
+
+<footer>
+  <span class="no-break">
+    dartion
+      1.1.0
+  </span>
+
+  
+</footer>
+
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+
+
+</body>
+
+</html>
+
