@@ -1,3 +1,6 @@
+## 1.2.0 - May 2023
+- Dart 3.0 support
+
 ## 1.1.0+1 - Jan 2023
 - Documentation fixes
 
